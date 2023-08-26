@@ -10,7 +10,7 @@ const execute = async (interaction, _, player) => {
     await interaction.reply("Q paused. Restart with /play");
   } catch (err) {
     console.error(err);
-    await interaction.reply("Q could not be paused.");
+    await interaction.reply("Q could not be paused");
   }
 };
 

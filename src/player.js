@@ -4,12 +4,14 @@ import {
   createAudioPlayer,
 } from "@discordjs/voice";
 import { YoutubeStream } from "./streams/index.js";
+import { delay } from "./utils/index.js";
 
 export class Player {
   _currentSong;
   _player;
   _store;
   _connection;
+  _isFirstPlay;
 
   constructor(store) {
     this._store = store;
@@ -23,6 +25,8 @@ export class Player {
     this._player.on(AudioPlayerStatus.Idle, async () => {
       await this.play();
     });
+
+    this._isFirstPlay = true;
   }
 
   async play(connection) {
@@ -30,24 +34,33 @@ export class Player {
       this._connection = connection;
     }
 
+    let hasNext = false;
+
     switch (this._player.state.status) {
       case AudioPlayerStatus.Idle: {
-        const hasNext = await this._startNextSong();
-        return hasNext;
+        hasNext = await this._startNextSong();
+        break;
       }
 
       case AudioPlayerStatus.AutoPaused:
       case AudioPlayerStatus.Paused: {
         this._player.unpause();
-        const hasNext = true;
+        hasNext = true;
+        break;
+      }
 
-        return hasNext;
+      case AudioPlayerStatus.Playing: {
+        hasNext = true;
+        break;
       }
 
       default: {
-        return false;
+        hasNext = false;
+        break;
       }
     }
+
+    return hasNext;
   }
 
   async pause() {
@@ -59,10 +72,10 @@ export class Player {
 
     if (this._isPlaying) {
       this._player.stop();
+    }
 
-      if (this._connection) {
-        this._connection.destroy();
-      }
+    if (this._connection) {
+      this._connection.destroy();
     }
   }
 
@@ -95,8 +108,17 @@ export class Player {
         this._connection.subscribe(this._player);
       }
 
-      const stream = new YoutubeStream(nextSong.url, true);
-      const audioResource = stream.getAudioResource();
+      const stream = new YoutubeStream(nextSong.url, {
+        videoInfo: nextSong.videoInfo,
+        isOpus: true,
+      });
+
+      const audioResource = await stream.getAudioResource();
+
+      if (this._isFirstPlay) {
+        this._isFirstPlay = false;
+        await delay(1000);
+      }
 
       this._player.play(audioResource);
       return true;

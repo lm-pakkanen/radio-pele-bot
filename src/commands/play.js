@@ -22,28 +22,31 @@ const execute = async (interaction, store, player) => {
     const url = interaction.options.getString("url");
 
     if (!url && !player._isPaused) {
-      throw new Error("URL missing");
+      throw new Error("URL missing (required when player is not paused");
+    }
+
+    if (!url) {
+      const connection = joinVoiceChannel(interaction);
+
+      await player.play(connection, store);
+      await interaction.reply("Continuing Q");
+      return;
+    }
+
+    const { success, reason, fullVideoTitle } = await store.add(url);
+
+    if (!success) {
+      throw new Error(
+        `Failed to load song${reason ? `, reason: ${reason}` : ""}`
+      );
     }
 
     const connection = joinVoiceChannel(interaction);
 
-    if (url) {
-      const { success } = await store.add(url);
-
-      if (success) {
-        player.play(connection, store);
-
-        await interaction.reply("Added to queue");
-      } else {
-        throw new Error("Failed to load song");
-      }
-    } else {
-      player.play(connection, store);
-      await interaction.reply("Continuing Q");
-    }
+    await player.play(connection, store);
+    await interaction.reply(`Added song to Q: ${fullVideoTitle}`);
   } catch (err) {
-    console.error(err);
-    await interaction.reply("Could not add song");
+    await interaction.reply(err.message);
   }
 };
 

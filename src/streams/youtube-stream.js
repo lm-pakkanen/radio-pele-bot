@@ -1,6 +1,7 @@
 import { createAudioResource } from "@discordjs/voice";
 import prism from "prism-media";
 import ytdl from "ytdl-core";
+import { delay } from "../utils/index.js";
 
 const { opus: Opus, FFmpeg } = prism;
 
@@ -17,9 +18,10 @@ const YTDL_EVENTS = [
 ];
 
 export class YoutubeStream {
+  _videoInfo;
   _audioResource;
 
-  constructor(url, isOpus) {
+  constructor(url, { videoInfo, infoOnly, isOpus }) {
     if (!url) {
       throw new Error("No input url provided");
     }
@@ -30,19 +32,28 @@ export class YoutubeStream {
       );
     }
 
-    this._audioResource = generateEncodedAudioResource(url, isOpus);
+    if (!ytdl.validateURL(url)) {
+      throw new SyntaxError("Incorrect URL format");
+    }
+
+    if (!infoOnly) {
+      this._audioResource = generateEncodedAudioResource(url, isOpus);
+    }
   }
 
-  getAudioResource() {
-    return this._audioResource;
+  async getVideoInfo() {
+    return await this._videoInfo;
+  }
+
+  async getAudioResource() {
+    return await this._audioResource;
   }
 }
 
-const generateEncodedAudioResource = (url, isOpus) => {
+const generateEncodedAudioResource = async (url, isOpus) => {
   const options = {
     filter: "audioonly",
     highWaterMark: 1 << 25,
-    opusEncoded: isOpus,
   };
 
   let FFmpegArgs = [
@@ -73,11 +84,14 @@ const generateEncodedAudioResource = (url, isOpus) => {
 
   const inputStream = ytdl(url, options);
 
-  inputStream.on("error", () => transcoder.destroy());
+  inputStream.on("error", (err) => {
+    console.error(err);
+    transcoder.destroy();
+  });
 
   const output = inputStream.pipe(transcoder);
 
-  if (options && !options.opusEncoded) {
+  if (options && !isOpus) {
     for (const event of YTDL_EVENTS) {
       inputStream.on(event, (...args) => {
         output.emit(event, ...args);

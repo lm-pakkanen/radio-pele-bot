@@ -1,7 +1,11 @@
 import { getSong } from "./utils/index.js";
 
 export class Store {
-  _queue = [];
+  _queue;
+
+  constructor() {
+    this._queue = [];
+  }
 
   async add(url) {
     let result = { success: false };
