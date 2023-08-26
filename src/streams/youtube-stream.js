@@ -1,7 +1,6 @@
 import { createAudioResource } from "@discordjs/voice";
 import prism from "prism-media";
 import ytdl from "ytdl-core";
-import { delay } from "../utils/index.js";
 
 const { opus: Opus, FFmpeg } = prism;
 
@@ -18,10 +17,9 @@ const YTDL_EVENTS = [
 ];
 
 export class YoutubeStream {
-  _videoInfo;
   _audioResource;
 
-  constructor(url, { videoInfo, infoOnly, isOpus }) {
+  constructor(url, { infoOnly, isOpus }) {
     if (!url) {
       throw new Error("No input url provided");
     }
@@ -39,10 +37,6 @@ export class YoutubeStream {
     if (!infoOnly) {
       this._audioResource = generateEncodedAudioResource(url, isOpus);
     }
-  }
-
-  async getVideoInfo() {
-    return await this._videoInfo;
   }
 
   async getAudioResource() {

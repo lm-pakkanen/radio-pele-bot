@@ -4,7 +4,7 @@ const data = new SlashCommandBuilder()
   .setName("skip")
   .setDescription("Skip current song in Q");
 
-const execute = async (interaction, _, player) => {
+const execute = async (interaction, { player }) => {
   try {
     const hasNext = await player.skip();
     await interaction.reply(`Song skipped${!hasNext ? ", Q empty" : ""}`);

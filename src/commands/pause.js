@@ -4,7 +4,7 @@ const data = new SlashCommandBuilder()
   .setName("pause")
   .setDescription("Pause current song (restart with /play)");
 
-const execute = async (interaction, _, player) => {
+const execute = async (interaction, { player }) => {
   try {
     await player.pause();
     await interaction.reply("Q paused. Restart with /play");

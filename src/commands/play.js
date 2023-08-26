@@ -17,7 +17,7 @@ const data = new SlashCommandBuilder()
       .setRequired(false)
   );
 
-const execute = async (interaction, store, player) => {
+const execute = async (interaction, { client, store, player, spotifyApi }) => {
   try {
     const url = interaction.options.getString("url");
 
@@ -25,15 +25,20 @@ const execute = async (interaction, store, player) => {
       throw new Error("URL missing (required when player is not paused");
     }
 
+    const textChannel = interaction.channel;
+
     if (!url) {
       const connection = joinVoiceChannel(interaction);
 
-      await player.play(connection, store);
+      await player.play(textChannel, connection);
       await interaction.reply("Continuing Q");
       return;
     }
 
-    const { success, reason, fullVideoTitle } = await store.add(url);
+    const { success, reason, fullVideoTitle } = await store.add(
+      url,
+      spotifyApi
+    );
 
     if (!success) {
       throw new Error(
@@ -43,7 +48,7 @@ const execute = async (interaction, store, player) => {
 
     const connection = joinVoiceChannel(interaction);
 
-    await player.play(connection, store);
+    await player.play(textChannel, connection);
     await interaction.reply(`Added song to Q: ${fullVideoTitle}`);
   } catch (err) {
     await interaction.reply(err.message);

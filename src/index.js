@@ -10,6 +10,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Store } from "./store.js";
 import { Player } from "./player.js";
+import { SpotifyApi } from "./spotify-api.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,7 +18,9 @@ const getPrivateValues = () => {
   return {
     BOT_TOKEN: process.env.BOT_TOKEN,
     BOT_CLIENT_ID: process.env.BOT_CLIENT_ID,
-    GUILD_ID_DEV: process.env.GUILD_ID_DEV,
+    GUILD_ID: process.env.GUILD_ID_SALT_MINE,
+    SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
+    YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
   };
 };
 
@@ -26,7 +29,7 @@ const ensurePrivateValues = (privateValues) => {
 };
 
 const createCommands = async (privateValues, commands) => {
-  const { BOT_TOKEN, BOT_CLIENT_ID, GUILD_ID_DEV } = privateValues;
+  const { BOT_TOKEN, BOT_CLIENT_ID, GUILD_ID } = privateValues;
 
   try {
     const commandsAsJson = [];
@@ -57,10 +60,13 @@ const createCommands = async (privateValues, commands) => {
 
     const rest = new REST().setToken(BOT_TOKEN);
 
-    await rest.put(
-      Routes.applicationGuildCommands(BOT_CLIENT_ID, GUILD_ID_DEV),
-      { body: commandsAsJson }
-    );
+    await rest.put(Routes.applicationGuildCommands(BOT_CLIENT_ID, GUILD_ID), {
+      body: commandsAsJson,
+    });
+
+    await rest.put(Routes.applicationCommands(BOT_CLIENT_ID), {
+      body: commandsAsJson,
+    });
   } catch (err) {
     console.error(err);
   }
@@ -71,6 +77,7 @@ const startClient = async (privateValues) => {
 
   const store = new Store();
   const player = new Player(store);
+  const spotifyApi = new SpotifyApi(privateValues);
 
   const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
@@ -95,7 +102,7 @@ const startClient = async (privateValues) => {
     }
 
     try {
-      await command.execute(interaction, store, player);
+      await command.execute(interaction, { client, store, player, spotifyApi });
     } catch (err) {
       console.error(err);
 

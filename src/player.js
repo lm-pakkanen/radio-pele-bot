@@ -7,10 +7,14 @@ import { YoutubeStream } from "./streams/index.js";
 import { delay } from "./utils/index.js";
 
 export class Player {
-  _currentSong;
+  _textChannel;
+  _connection;
+
+  _client;
   _player;
   _store;
-  _connection;
+
+  _currentSong;
   _isFirstPlay;
 
   constructor(store) {
@@ -23,13 +27,18 @@ export class Player {
     });
 
     this._player.on(AudioPlayerStatus.Idle, async () => {
-      await this.play();
+      this._currentSong = null;
+      await this.play(undefined, undefined, true);
     });
 
     this._isFirstPlay = true;
   }
 
-  async play(connection) {
+  async play(textChannel, connection, sendUpdateMessage) {
+    if (textChannel) {
+      this._textChannel = textChannel;
+    }
+
     if (connection) {
       this._connection = connection;
     }
@@ -38,7 +47,15 @@ export class Player {
 
     switch (this._player.state.status) {
       case AudioPlayerStatus.Idle: {
-        hasNext = await this._startNextSong();
+        const nextSong = await this._startNextSong();
+        hasNext = nextSong !== false;
+
+        if (hasNext && sendUpdateMessage === true && this._textChannel) {
+          this._textChannel.send(
+            `Now playing: ${nextSong.fullVideoTitle}. Songs in Q: ${this._store._queue.length}`
+          );
+        }
+
         break;
       }
 
@@ -120,8 +137,10 @@ export class Player {
         await delay(1000);
       }
 
+      this._currentSong = nextSong;
       this._player.play(audioResource);
-      return true;
+
+      return nextSong;
     } else {
       return false;
     }

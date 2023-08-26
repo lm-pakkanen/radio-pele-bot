@@ -4,7 +4,7 @@ const data = new SlashCommandBuilder()
   .setName("stop")
   .setDescription("Stop & clear Q");
 
-const execute = async (interaction, _, player) => {
+const execute = async (interaction, { player }) => {
   try {
     await player.stop();
     await interaction.reply("Q stopped. Bye!");

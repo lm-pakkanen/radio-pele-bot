@@ -4,7 +4,7 @@ const data = new SlashCommandBuilder()
   .setName("shuffle")
   .setDescription("Shuffle Q");
 
-const execute = async (interaction, store, _) => {
+const execute = async (interaction, { store }) => {
   try {
     await store.shuffle();
     await interaction.reply("Q shuffled");

@@ -7,11 +7,11 @@ export class Store {
     this._queue = [];
   }
 
-  async add(url) {
+  async add(url, spotifyApi) {
     let result = { success: false };
 
     try {
-      result = await getSong(url);
+      result = await getSong(url, spotifyApi);
 
       if (result.success) {
         this._queue.push(result);
