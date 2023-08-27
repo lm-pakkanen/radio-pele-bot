@@ -2,23 +2,29 @@ import {
   AudioPlayerStatus,
   NoSubscriberBehavior,
   createAudioPlayer,
+  VoiceConnection,
+  AudioPlayer,
 } from "@discordjs/voice";
-import { YoutubeStream } from "./streams/index.js";
-import { delay, createEmbed, embedLayoutField } from "./utils/index.js";
+import { TextChannel } from "discord.js";
+import { YoutubeStream } from "./streams/index.ts";
+import { delay, createEmbed, embedLayoutField } from "./utils/index.ts";
+import { SongInfoOnSuccess, User } from "./types/index.ts";
+import { Store } from "./store.ts";
 
 export class Player {
-  _textChannel;
-  _connection;
+  _botUser: User;
+  _textChannel: undefined | TextChannel;
+  _connection: undefined | VoiceConnection;
 
-  _client;
-  _player;
+  _player: AudioPlayer;
   _store;
 
-  _currentSong;
-  _isFirstPlay;
+  _currentSong: undefined | SongInfoOnSuccess;
+  _isFirstPlay: boolean;
 
-  constructor(store) {
+  constructor({ store, botUser }: { store: Store; botUser: User }) {
     this._store = store;
+    this._botUser = botUser;
 
     this._player = createAudioPlayer({
       behaviors: {
@@ -27,14 +33,22 @@ export class Player {
     });
 
     this._player.on(AudioPlayerStatus.Idle, async () => {
-      this._currentSong = null;
+      this._currentSong = undefined;
       await this.play({ sendUpdateMessage: true });
     });
 
     this._isFirstPlay = true;
   }
 
-  async play({ textChannel, connection, botUser, sendUpdateMessage }) {
+  async play({
+    textChannel,
+    connection,
+    sendUpdateMessage,
+  }: {
+    textChannel?: undefined | TextChannel;
+    connection?: undefined | VoiceConnection;
+    sendUpdateMessage?: boolean;
+  }): Promise<boolean> {
     if (textChannel) {
       this._textChannel = textChannel;
     }
@@ -50,21 +64,27 @@ export class Player {
         const nextSong = await this._startNextSong();
         hasNext = nextSong !== false;
 
-        if (hasNext && sendUpdateMessage === true) {
+        if (
+          this._textChannel &&
+          nextSong !== false &&
+          sendUpdateMessage === true
+        ) {
           const fields = [
             embedLayoutField,
             {
               name: "Song",
-              value: nextSong.fullVideoTitle,
+              value: nextSong.fullTitle,
+              inline: false,
             },
             {
               name: "Queue",
               value: `${this._store._queue.length} song(s) in Q`,
+              inline: false,
             },
           ];
 
           const embed = createEmbed({
-            botUser,
+            botUser: this._botUser,
             title: "🎼 Now playing 🎼",
             fields,
           });
@@ -96,7 +116,7 @@ export class Player {
     return hasNext;
   }
 
-  async pause() {
+  async pause(): Promise<boolean> {
     if (this._player.state.status === AudioPlayerStatus.Playing) {
       this._player.pause();
       return true;
@@ -117,28 +137,30 @@ export class Player {
     }
   }
 
-  async skip() {
+  async skip(): Promise<boolean> {
     if (this._isPlaying) {
       this._player.stop();
       const hasNext = await this.play({});
 
       return hasNext;
     }
+
+    return false;
   }
 
-  get _isPlaying() {
+  get _isPlaying(): boolean {
     return [AudioPlayerStatus.Playing, AudioPlayerStatus.Buffering].includes(
       this._player.state.status
     );
   }
 
-  get _isPaused() {
+  get _isPaused(): boolean {
     return [AudioPlayerStatus.Paused, AudioPlayerStatus.AutoPaused].includes(
       this._player.state.status
     );
   }
 
-  async _startNextSong() {
+  async _startNextSong(): Promise<false | SongInfoOnSuccess> {
     const nextSong = await this._store.play();
 
     if (nextSong?.url) {
@@ -146,11 +168,7 @@ export class Player {
         this._connection.subscribe(this._player);
       }
 
-      const stream = new YoutubeStream(nextSong.url, {
-        videoInfo: nextSong.videoInfo,
-        isOpus: true,
-      });
-
+      const stream = new YoutubeStream(nextSong.url, { isOpus: true });
       const audioResource = await stream.getAudioResource();
 
       if (this._isFirstPlay) {

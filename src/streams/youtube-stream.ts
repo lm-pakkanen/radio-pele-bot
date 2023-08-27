@@ -1,6 +1,26 @@
-import { createAudioResource } from "@discordjs/voice";
+import {
+  createAudioResource,
+  AudioResource,
+  StreamType,
+} from "@discordjs/voice";
 import prism from "prism-media";
 import ytdl from "ytdl-core";
+
+type FFmpegArgs = prism.FFmpegOptions["args"];
+
+interface YoutubeStreamOptions {
+  isOpus: boolean;
+}
+
+interface GenerateEncodedAudioResourceOptions {
+  isOpus: boolean;
+}
+
+interface YTDLOptions extends ytdl.downloadOptions {
+  fmt?: string;
+  encoderArgs?: FFmpegArgs;
+  seek?: number;
+}
 
 const { opus: Opus, FFmpeg } = prism;
 
@@ -17,9 +37,9 @@ const YTDL_EVENTS = [
 ];
 
 export class YoutubeStream {
-  _audioResource;
+  _audioResource: undefined | Promise<AudioResource>;
 
-  constructor(url, { infoOnly, isOpus }) {
+  constructor(url: string, { isOpus }: YoutubeStreamOptions) {
     if (!url) {
       throw new Error("No input url provided");
     }
@@ -34,23 +54,28 @@ export class YoutubeStream {
       throw new SyntaxError("Incorrect URL format");
     }
 
-    if (!infoOnly) {
-      this._audioResource = generateEncodedAudioResource(url, isOpus);
-    }
+    this._audioResource = generateEncodedAudioResource(url, { isOpus });
   }
 
-  async getAudioResource() {
+  async getAudioResource(): Promise<AudioResource> {
+    if (!this._audioResource) {
+      throw new Error("Audio resource not available");
+    }
+
     return await this._audioResource;
   }
 }
 
-const generateEncodedAudioResource = async (url, isOpus) => {
-  const options = {
+const generateEncodedAudioResource = async (
+  url: string,
+  { isOpus }: GenerateEncodedAudioResourceOptions
+) => {
+  const options: YTDLOptions = {
     filter: "audioonly",
     highWaterMark: 1 << 25,
   };
 
-  let FFmpegArgs = [
+  let FFmpegArgs: FFmpegArgs = [
     "-analyzeduration",
     "0",
     "-loglevel",
@@ -63,7 +88,7 @@ const generateEncodedAudioResource = async (url, isOpus) => {
     "2",
   ];
 
-  if (!isNaN(options.seek)) {
+  if (options.seek !== undefined && !isNaN(options.seek)) {
     FFmpegArgs.unshift("-ss", options.seek.toString());
   }
 
@@ -93,7 +118,7 @@ const generateEncodedAudioResource = async (url, isOpus) => {
     }
 
     output.on("close", () => transcoder.destroy());
-    return createAudioResource(output, { inputType: "raw" });
+    return createAudioResource(output, { inputType: StreamType.Raw });
   }
 
   const opus = new Opus.Encoder({
@@ -114,5 +139,5 @@ const generateEncodedAudioResource = async (url, isOpus) => {
     });
   }
 
-  return createAudioResource(outputStream, { inputType: "opus" });
+  return createAudioResource(outputStream, { inputType: StreamType.Opus });
 };

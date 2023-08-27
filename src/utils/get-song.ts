@@ -1,7 +1,9 @@
 import ytdl from "ytdl-core";
-import { getStreamSource } from "./index.js";
+import { getStreamSource } from "./index.ts";
+import { SongInfo } from "../types/index.ts";
+import { SpotifyApi } from "../spotify-api.ts";
 
-const getDurationMinsString = (secondsAsString) => {
+const getDurationMinsString = (secondsAsString: string): string => {
   const inputSeconds = parseInt(secondsAsString);
 
   const minutes = Math.floor(inputSeconds / 60);
@@ -10,7 +12,10 @@ const getDurationMinsString = (secondsAsString) => {
   return `${minutes}min ${seconds}s`;
 };
 
-export const getSong = async (url, spotifyApi) => {
+export const getSong = async (
+  url: string,
+  spotifyApi: SpotifyApi
+): Promise<SongInfo> => {
   try {
     const source = getStreamSource(url);
 
@@ -35,7 +40,7 @@ export const getSong = async (url, spotifyApi) => {
     const authorName = author.name;
     const videoTitle = title;
 
-    const fullVideoTitle = [
+    const fullTitle = [
       videoTitle,
       authorName && !videoTitle.includes(authorName) ? `(${authorName})` : "",
       ` | ${durationString}`,
@@ -46,7 +51,7 @@ export const getSong = async (url, spotifyApi) => {
     return {
       success: true,
       url,
-      fullVideoTitle: fullVideoTitle,
+      fullTitle,
     };
   } catch (err) {
     return {

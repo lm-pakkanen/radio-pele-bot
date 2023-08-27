@@ -1,15 +1,16 @@
 import Spotify from "spotify-web-api-node";
 import Youtube from "discord-youtube-api";
+import { PrivateValues } from "./types/index.ts";
 
-const getTrackIdFromUrl = (url) => {
+const getTrackIdFromUrl = (url: string): string => {
   return url.split("spotify.com/track/")[1];
 };
 
 export class SpotifyApi {
-  _spotifyClient;
-  _youtubeClient;
+  _spotifyClient: Spotify;
+  _youtubeClient: Youtube;
 
-  constructor(privateValues) {
+  constructor(privateValues: PrivateValues) {
     const { SPOTIFY_CLIENT_SECRET, YOUTUBE_API_KEY } = privateValues;
 
     this._spotifyClient = new Spotify({
@@ -29,7 +30,7 @@ export class SpotifyApi {
     this._youtubeClient = new Youtube(YOUTUBE_API_KEY);
   }
 
-  async getYoutubeUrlFromSpotifyLink(url) {
+  async getYoutubeUrlFromSpotifyLink(url: string): Promise<string> {
     const trackId = getTrackIdFromUrl(url);
 
     if (!trackId) {

@@ -1,14 +1,18 @@
-import { getSong } from "./utils/index.js";
+import { SongInfo, SongInfoOnSuccess } from "./types/index.ts";
+import { getSong } from "./utils/index.ts";
+import { SpotifyApi } from "./spotify-api.ts";
 
 export class Store {
-  _queue;
+  _queue: SongInfoOnSuccess[];
 
   constructor() {
     this._queue = [];
   }
 
-  async add(url, spotifyApi) {
-    let result = { success: false };
+  async add(url: string, spotifyApi: SpotifyApi): Promise<SongInfo> {
+    let result: SongInfo = {
+      success: false,
+    };
 
     try {
       result = await getSong(url, spotifyApi);
@@ -34,7 +38,7 @@ export class Store {
     }
   }
 
-  async play() {
+  async play(): Promise<undefined | SongInfoOnSuccess> {
     let nextSong = this._queue.shift();
     return nextSong;
   }
