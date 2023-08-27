@@ -4,7 +4,7 @@ import {
   createAudioPlayer,
 } from "@discordjs/voice";
 import { YoutubeStream } from "./streams/index.js";
-import { delay } from "./utils/index.js";
+import { delay, createEmbed, embedLayoutField } from "./utils/index.js";
 
 export class Player {
   _textChannel;
@@ -28,13 +28,13 @@ export class Player {
 
     this._player.on(AudioPlayerStatus.Idle, async () => {
       this._currentSong = null;
-      await this.play(undefined, undefined, true);
+      await this.play({ sendUpdateMessage: true });
     });
 
     this._isFirstPlay = true;
   }
 
-  async play(textChannel, connection, sendUpdateMessage) {
+  async play({ textChannel, connection, botUser, sendUpdateMessage }) {
     if (textChannel) {
       this._textChannel = textChannel;
     }
@@ -50,10 +50,26 @@ export class Player {
         const nextSong = await this._startNextSong();
         hasNext = nextSong !== false;
 
-        if (hasNext && sendUpdateMessage === true && this._textChannel) {
-          this._textChannel.send(
-            `Now playing: ${nextSong.fullVideoTitle}. Songs in Q: ${this._store._queue.length}`
-          );
+        if (hasNext && sendUpdateMessage === true) {
+          const fields = [
+            embedLayoutField,
+            {
+              name: "Song",
+              value: nextSong.fullVideoTitle,
+            },
+            {
+              name: "Queue",
+              value: `${this._store._queue.length} song(s) in Q`,
+            },
+          ];
+
+          const embed = createEmbed({
+            botUser,
+            title: "🎼 Now playing 🎼",
+            fields,
+          });
+
+          this._textChannel.send({ embeds: [embed] });
         }
 
         break;
@@ -81,7 +97,12 @@ export class Player {
   }
 
   async pause() {
-    this._player.pause();
+    if (this._player.state.status === AudioPlayerStatus.Playing) {
+      this._player.pause();
+      return true;
+    }
+
+    return false;
   }
 
   async stop() {
@@ -99,7 +120,7 @@ export class Player {
   async skip() {
     if (this._isPlaying) {
       this._player.stop();
-      const hasNext = await this.play();
+      const hasNext = await this.play({});
 
       return hasNext;
     }

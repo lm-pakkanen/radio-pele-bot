@@ -18,7 +18,7 @@ const getPrivateValues = () => {
   return {
     BOT_TOKEN: process.env.BOT_TOKEN,
     BOT_CLIENT_ID: process.env.BOT_CLIENT_ID,
-    GUILD_ID: process.env.GUILD_ID_SALT_MINE,
+    GUILD_ID: process.env.GUILD_ID_DEV,
     SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
     YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
   };
@@ -73,7 +73,7 @@ const createCommands = async (privateValues, commands) => {
 };
 
 const startClient = async (privateValues) => {
-  const { BOT_TOKEN } = privateValues;
+  const { BOT_TOKEN, BOT_CLIENT_ID } = privateValues;
 
   const store = new Store();
   const player = new Player(store);
@@ -101,8 +101,16 @@ const startClient = async (privateValues) => {
       return;
     }
 
+    const botUser = client.users.cache.get(BOT_CLIENT_ID);
+
     try {
-      await command.execute(interaction, { client, store, player, spotifyApi });
+      await command.execute(interaction, {
+        client,
+        store,
+        botUser,
+        player,
+        spotifyApi,
+      });
     } catch (err) {
       console.error(err);
 

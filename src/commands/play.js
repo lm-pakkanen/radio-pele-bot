@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { joinVoiceChannel } from "../utils/index.js";
+import { joinVoiceChannel, createEmbed } from "../utils/index.js";
 
 const supportedSources = ["youtube", "spotify"];
 
@@ -17,42 +17,61 @@ const data = new SlashCommandBuilder()
       .setRequired(false)
   );
 
-const execute = async (interaction, { client, store, player, spotifyApi }) => {
-  try {
-    const url = interaction.options.getString("url");
+const execute = async (interaction, { botUser, store, player, spotifyApi }) => {
+  const url = interaction.options.getString("url");
 
-    if (!url && !player._isPaused) {
-      throw new Error("URL missing (required when player is not paused");
-    }
+  if (!url && !player._isPaused) {
+    throw new Error("URL missing (required when player is not paused)");
+  }
 
-    const textChannel = interaction.channel;
+  const textChannel = interaction.channel;
 
-    if (!url) {
-      const connection = joinVoiceChannel(interaction);
-
-      await player.play(textChannel, connection);
-      await interaction.reply("Continuing Q");
-      return;
-    }
-
-    const { success, reason, fullVideoTitle } = await store.add(
-      url,
-      spotifyApi
-    );
-
-    if (!success) {
-      throw new Error(
-        `Failed to load song${reason ? `, reason: ${reason}` : ""}`
-      );
-    }
-
+  if (!url) {
     const connection = joinVoiceChannel(interaction);
 
-    await player.play(textChannel, connection);
-    await interaction.reply(`Added song to Q: ${fullVideoTitle}`);
-  } catch (err) {
-    await interaction.reply(err.message);
+    await player.play({ textChannel, connection, botUser });
+
+    const embed = createEmbed({
+      botUser,
+      title: "Re-starting song",
+      fields: [],
+    });
+
+    await interaction.reply({ embeds: [embed] });
+
+    return;
   }
+
+  const { success, reason, fullVideoTitle } = await store.add(url, spotifyApi);
+
+  if (!success) {
+    throw new Error(
+      `Failed to load song${reason ? `, reason: ${reason}` : ""}`
+    );
+  }
+
+  const connection = joinVoiceChannel(interaction);
+
+  await player.play({ textChannel, connection, botUser });
+
+  const fields = [
+    {
+      name: "Song",
+      value: fullVideoTitle,
+    },
+    {
+      name: "Queue",
+      value: `${store._queue.length || 1} song(s) in Q`,
+    },
+  ];
+
+  const embed = createEmbed({
+    botUser,
+    title: "Song added",
+    fields,
+  });
+
+  await interaction.reply({ embeds: [embed] });
 };
 
 export default {
