@@ -20,9 +20,16 @@ export interface SongInfoOnSuccess {
   success: true;
   url: string;
   fullTitle: string;
+  durationString: string;
+  durationSeconds: number;
 }
 
-export type SongInfo = SongInfoOnFailure | SongInfoOnSuccess;
+export type SongInfo<TSuccess extends boolean | "either" = "either"> =
+  TSuccess extends "either"
+    ? SongInfoOnFailure | SongInfoOnSuccess
+    : TSuccess extends false
+    ? SongInfoOnFailure
+    : SongInfoOnSuccess;
 
 export interface PrivateValues {
   BOT_TOKEN: string;

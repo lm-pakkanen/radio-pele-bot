@@ -1,9 +1,8 @@
 import {
+  ApplicationCommandDataResolvable,
+  Collection,
   Client as DiscordClient,
   GatewayIntentBits,
-  Collection,
-  REST,
-  Routes,
 } from "discord.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -11,41 +10,19 @@ import { fileURLToPath } from "node:url";
 import { Store } from "./store.ts";
 import { Player } from "./player.ts";
 import { SpotifyApi } from "./spotify-api.ts";
-import { Client, Interaction, PrivateValues } from "types/index.ts";
+import { Client, Interaction, PrivateValues } from "./types/index.ts";
+import { getPrivateValues } from "./utils/index.ts";
+
+const UPDATE_GLOBAL_COMMANDS = false;
+const DELETE_GUILD_COMMANDS = false;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const getPrivateValues = (): PrivateValues => {
-  const privateValues: Record<keyof PrivateValues, any> = {
-    BOT_TOKEN: process.env.BOT_TOKEN,
-    BOT_CLIENT_ID: process.env.BOT_CLIENT_ID,
-    GUILD_ID_DEV: process.env.GUILD_ID_DEV,
-    SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
-    YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
-  };
-
-  if (!ensurePrivateValues(privateValues)) {
-    console.error("Private values invalid");
-    process.exit(1);
-  }
-
-  return privateValues as PrivateValues;
-};
-
-const ensurePrivateValues = (
-  privateValues: Record<keyof PrivateValues, any>
-) => {
-  return Object.values(privateValues).every((n) => n !== undefined);
-};
-
-const createCommands = async (
-  privateValues: PrivateValues,
-  commands: Client["commands"]
-) => {
-  const { BOT_TOKEN, BOT_CLIENT_ID, GUILD_ID_DEV } = privateValues;
+const createCommands = async (client: Client, privateValues: PrivateValues) => {
+  client.commands = new Collection();
 
   try {
-    const commandsAsJson = [];
+    const commandsAsJson: ApplicationCommandDataResolvable[] = [];
 
     const supportedFileTypes = [".js", ".ts"];
 
@@ -67,22 +44,33 @@ const createCommands = async (
         continue;
       }
 
-      commands.set(command.data.name, command);
+      client.commands.set(command.data.name, command);
       commandsAsJson.push(command.data.toJSON());
     }
 
-    const rest = new REST().setToken(BOT_TOKEN);
+    if (UPDATE_GLOBAL_COMMANDS) {
+      console.log("Updating global commands...");
 
-    await rest.put(
-      Routes.applicationGuildCommands(BOT_CLIENT_ID, GUILD_ID_DEV),
-      {
-        body: commandsAsJson,
-      }
-    );
+      const { updateGlobalCommands } = await import(
+        "./scripts/update-global-commands.ts"
+      );
 
-    await rest.put(Routes.applicationCommands(BOT_CLIENT_ID), {
-      body: commandsAsJson,
-    });
+      await updateGlobalCommands(privateValues, commandsAsJson);
+
+      console.log("Global commands updated");
+    }
+
+    if (DELETE_GUILD_COMMANDS) {
+      console.log("Deleting guild commands...");
+
+      const { updateGuildCommands } = await import(
+        "./scripts/update-guild-commands.ts"
+      );
+
+      await updateGuildCommands(privateValues, []);
+
+      console.log("Guild commands updated");
+    }
   } catch (err) {
     console.error(err);
   }
@@ -95,10 +83,7 @@ const startClient = async (privateValues: PrivateValues) => {
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
   }) as Client;
 
-  client.commands = new Collection();
-  await createCommands(privateValues, client.commands);
-
-  client.on("ready", () => {
+  client.on("ready", async () => {
     console.log("Ready");
 
     const botUser = client.users.cache.get(BOT_CLIENT_ID);
@@ -107,6 +92,8 @@ const startClient = async (privateValues: PrivateValues) => {
       console.error("Bot user not found");
       process.exit(1);
     }
+
+    await createCommands(client, privateValues);
 
     const store = new Store();
     const player = new Player({ store, botUser });
