@@ -8,6 +8,7 @@ import {
 import { Player } from "../player.ts";
 import { SpotifyApi } from "../spotify-api.ts";
 import { Store } from "../store.ts";
+import { YoutubeDataApi } from "youtube-data-api.ts";
 
 export type User = DiscordUser;
 
@@ -19,9 +20,11 @@ export interface SongInfoOnFailure {
 export interface SongInfoOnSuccess {
   success: true;
   url: string;
-  fullTitle: string;
-  durationString: string;
-  durationSeconds: number;
+  qualifiedTitle: string;
+  duration: {
+    durationString: string;
+    durationSeconds: number;
+  };
 }
 
 export type SongInfo<TSuccess extends boolean | "either" = "either"> =
@@ -44,6 +47,8 @@ export interface CommandParams {
   player: Player;
   store: Store;
   spotifyApi: SpotifyApi;
+  youtubeDataApi: YoutubeDataApi;
+  privateValues: PrivateValues;
 }
 
 export interface Command {

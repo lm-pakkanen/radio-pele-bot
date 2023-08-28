@@ -1,6 +1,7 @@
-import { SongInfo, SongInfoOnSuccess } from "./types/index.ts";
+import { PrivateValues, SongInfo, SongInfoOnSuccess } from "./types/index.ts";
 import { getSong } from "./utils/index.ts";
 import { SpotifyApi } from "./spotify-api.ts";
+import { YoutubeDataApi } from "./youtube-data-api.ts";
 
 export class Store {
   _queue: SongInfoOnSuccess[];
@@ -9,13 +10,17 @@ export class Store {
     this._queue = [];
   }
 
-  async add(url: string, spotifyApi: SpotifyApi): Promise<SongInfo> {
+  async add(
+    url: string,
+    youtubeDataApi: YoutubeDataApi,
+    spotifyApi: SpotifyApi
+  ): Promise<SongInfo> {
     let result: SongInfo = {
       success: false,
     };
 
     try {
-      result = await getSong(url, spotifyApi);
+      result = await getSong(url, youtubeDataApi, spotifyApi);
 
       if (result.success) {
         this._queue.push(result);

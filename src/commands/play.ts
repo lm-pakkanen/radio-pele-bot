@@ -1,6 +1,7 @@
 import { EmbedField, SlashCommandBuilder, TextChannel } from "discord.js";
 import { joinVoiceChannel, createEmbed } from "../utils/index.ts";
 import { Command } from "../types/index.ts";
+import { YoutubeDataApi } from "youtube-data-api.ts";
 
 const supportedSources = ["youtube", "spotify"];
 
@@ -20,7 +21,7 @@ const data: Command["data"] = new SlashCommandBuilder()
 
 const execute: Command["execute"] = async (
   interaction,
-  { botUser, store, player, spotifyApi }
+  { botUser, store, player, spotifyApi, youtubeDataApi }
 ) => {
   const url = interaction.options.getString("url");
 
@@ -52,7 +53,7 @@ const execute: Command["execute"] = async (
     return;
   }
 
-  const songAddResponse = await store.add(url, spotifyApi);
+  const songAddResponse = await store.add(url, youtubeDataApi, spotifyApi);
 
   if (!songAddResponse.success) {
     throw new Error(
@@ -69,7 +70,7 @@ const execute: Command["execute"] = async (
   const fields: EmbedField[] = [
     {
       name: "Song",
-      value: songAddResponse.fullTitle,
+      value: songAddResponse.qualifiedTitle,
       inline: false,
     },
     {

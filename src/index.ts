@@ -12,6 +12,7 @@ import { Player } from "./player.ts";
 import { SpotifyApi } from "./spotify-api.ts";
 import { Client, Interaction, PrivateValues } from "./types/index.ts";
 import { getPrivateValues } from "./utils/index.ts";
+import { YoutubeDataApi } from "./youtube-data-api.ts";
 
 const UPDATE_GLOBAL_COMMANDS = false;
 const DELETE_GUILD_COMMANDS = false;
@@ -97,7 +98,9 @@ const startClient = async (privateValues: PrivateValues) => {
 
     const store = new Store();
     const player = new Player({ store, botUser });
-    const spotifyApi = new SpotifyApi(privateValues);
+
+    const youtubeDataApi = new YoutubeDataApi(privateValues);
+    const spotifyApi = new SpotifyApi(privateValues, youtubeDataApi);
 
     client.on("interactionCreate", async (_interaction) => {
       const interaction = _interaction as unknown as Interaction;
@@ -118,6 +121,8 @@ const startClient = async (privateValues: PrivateValues) => {
           store,
           player,
           spotifyApi,
+          youtubeDataApi,
+          privateValues,
         });
       } catch (err) {
         console.error(err);

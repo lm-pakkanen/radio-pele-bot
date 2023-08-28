@@ -1,6 +1,6 @@
 import Spotify from "spotify-web-api-node";
-import Youtube from "discord-youtube-api";
 import { PrivateValues } from "./types/index.ts";
+import { YoutubeDataApi } from "./youtube-data-api.ts";
 
 const getTrackIdFromUrl = (url: string): string => {
   return url.split("spotify.com/track/")[1];
@@ -8,10 +8,11 @@ const getTrackIdFromUrl = (url: string): string => {
 
 export class SpotifyApi {
   _spotifyClient: Spotify;
-  _youtubeClient: Youtube;
+  _youtubeDataApi: YoutubeDataApi;
 
-  constructor(privateValues: PrivateValues) {
-    const { SPOTIFY_CLIENT_SECRET, YOUTUBE_API_KEY } = privateValues;
+  constructor(privateValues: PrivateValues, youtubeDataApi: YoutubeDataApi) {
+    const { SPOTIFY_CLIENT_SECRET } = privateValues;
+    this._youtubeDataApi = youtubeDataApi;
 
     this._spotifyClient = new Spotify({
       clientId: "813c3544f8e548a2a1c9dc438ecf2c0d",
@@ -26,8 +27,6 @@ export class SpotifyApi {
         throw new Error(err);
       }
     );
-
-    this._youtubeClient = new Youtube(YOUTUBE_API_KEY);
   }
 
   async getYoutubeUrlFromSpotifyLink(url: string): Promise<string> {
@@ -49,10 +48,16 @@ export class SpotifyApi {
       .filter((n) => n)
       .join(" ");
 
-    const matchingVideo = await this._youtubeClient.searchVideos(
+    const matchingVideos = await this._youtubeDataApi.getVideosBySearch(
       fullTrackTitle,
-      10
+      { maxResults: 1 }
     );
+
+    const matchingVideo = matchingVideos[0];
+
+    if (!matchingVideo) {
+      throw new Error("No results for youtube search");
+    }
 
     const youtubeUrl = matchingVideo.url;
     return youtubeUrl;

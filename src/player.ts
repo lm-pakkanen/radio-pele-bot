@@ -73,7 +73,7 @@ export class Player {
             embedLayoutField,
             {
               name: "Song",
-              value: nextSong.fullTitle,
+              value: nextSong.qualifiedTitle,
               inline: false,
             },
             {
