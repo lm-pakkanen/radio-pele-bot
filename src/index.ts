@@ -27,7 +27,7 @@ const createCommands = async (client: Client, privateValues: PrivateValues) => {
 
     const supportedFileTypes = [".js", ".ts"];
 
-    const commandsFolderPath = path.join("", "commands");
+    const commandsFolderPath = path.join(__dirname, "commands");
     const commandFilePaths = fs.readdirSync(commandsFolderPath);
 
     for (const commandFile of commandFilePaths) {
