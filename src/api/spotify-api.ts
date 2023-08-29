@@ -1,5 +1,5 @@
 import Spotify from "spotify-web-api-node";
-import { PrivateValues } from "./types/index";
+import { PrivateValues } from "../types/index";
 import { YoutubeDataApi } from "./youtube-data-api";
 
 const getTrackIdFromUrl = (url: string): string => {

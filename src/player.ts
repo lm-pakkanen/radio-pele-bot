@@ -8,7 +8,7 @@ import {
 import { TextChannel } from "discord.js";
 import { YoutubeStream } from "./streams/index";
 import { delay, createEmbed, embedLayoutField } from "./utils/index";
-import { SongInfoOnSuccess, User } from "./types/index";
+import { SongInfo, User } from "./types/index";
 import { Store } from "./store";
 
 export class Player {
@@ -19,7 +19,7 @@ export class Player {
   _player: AudioPlayer;
   _store;
 
-  _currentSong: undefined | SongInfoOnSuccess;
+  _currentSong: undefined | SongInfo<true>;
   _isFirstPlay: boolean;
 
   constructor({ store, botUser }: { store: Store; botUser: User }) {
@@ -160,7 +160,7 @@ export class Player {
     );
   }
 
-  async _startNextSong(): Promise<false | SongInfoOnSuccess> {
+  async _startNextSong(): Promise<false | SongInfo<true>> {
     const nextSong = await this._store.play();
 
     if (nextSong?.url) {

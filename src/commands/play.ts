@@ -1,18 +1,19 @@
 import { EmbedField, SlashCommandBuilder, TextChannel } from "discord.js";
 import { joinVoiceChannel, createEmbed } from "../utils/index";
 import { Command } from "../types/index";
-import { YoutubeDataApi } from "youtube-data-api";
 
 const supportedSources = ["youtube", "spotify"];
 
 const data: Command["data"] = new SlashCommandBuilder()
   .setName("play")
-  .setDescription(`Plays song from url (${supportedSources.join(", ")})`)
+  .setDescription(
+    `Plays song from search query or url (${supportedSources.join(", ")})`
+  )
   .addStringOption((option) =>
     option
-      .setName("url")
+      .setName("query")
       .setDescription(
-        `Song URL (${supportedSources.join(
+        `Search query or link (${supportedSources.join(
           ", "
         )}). Leave empty to continue paused Q.`
       )
@@ -23,9 +24,9 @@ const execute: Command["execute"] = async (
   interaction,
   { botUser, store, player, spotifyApi, youtubeDataApi }
 ) => {
-  const url = interaction.options.getString("url");
+  const query = interaction.options.getString("query");
 
-  if (!url && !player._isPaused) {
+  if (!query && !player._isPaused) {
     throw new Error("URL missing (required when player is not paused)");
   }
 
@@ -35,7 +36,7 @@ const execute: Command["execute"] = async (
     throw new Error("Text channel not found");
   }
 
-  if (!url) {
+  if (!query) {
     const connection = joinVoiceChannel(interaction);
 
     await player.play({ textChannel, connection });
@@ -53,7 +54,7 @@ const execute: Command["execute"] = async (
     return;
   }
 
-  const songAddResponse = await store.add(url, youtubeDataApi, spotifyApi);
+  const songAddResponse = await store.add(query, youtubeDataApi, spotifyApi);
 
   if (!songAddResponse.success) {
     throw new Error(

@@ -10,10 +10,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Store } from "./store";
 import { Player } from "./player";
-import { SpotifyApi } from "./spotify-api";
+import { SpotifyApi } from "./api/spotify-api";
 import { Client, Interaction, PrivateValues } from "./types/index";
 import { getPrivateValues } from "./utils/index";
-import { YoutubeDataApi } from "./youtube-data-api";
+import { YoutubeDataApi } from "./api/youtube-data-api";
 
 const UPDATE_GLOBAL_COMMANDS = false;
 const DELETE_GUILD_COMMANDS = false;

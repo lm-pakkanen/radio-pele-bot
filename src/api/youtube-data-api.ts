@@ -1,23 +1,23 @@
 import nodeUrl from "node:url";
-import { PrivateValues, SongInfoOnSuccess } from "./types/index";
-import { YoutubeDataApiVideoResponse } from "./types/youtube-data-api";
-
-const VIDEO_BASE_URL = "https://www.youtube.com/watch?v=";
+import { PrivateValues, SongInfo } from "../types/index";
+import { YoutubeDataApiVideoResponse } from "../types/youtube-data-api";
 
 export class YoutubeDataApi {
   _apiKey: string;
   _baseUrl: string;
+  _videoBaseUrl: string;
 
   constructor(privateValues: PrivateValues) {
     this._apiKey = privateValues.YOUTUBE_API_KEY;
     this._baseUrl = "https://www.googleapis.com/youtube/v3";
+    this._videoBaseUrl = "https://www.youtube.com/watch?v=";
   }
 
   async getVideoById(id: undefined | string | string[]): Promise<Video> {
     const part = "contentDetails,snippet";
 
     if (!this._isValidId(id)) {
-      throw new Error("Invalid video ID / URL");
+      throw new Error("Invalid video ID");
     }
 
     try {
@@ -26,7 +26,7 @@ export class YoutubeDataApi {
       const response = await fetch(qualifiedUrl);
       const responseJson = await response.json();
 
-      const url = `${VIDEO_BASE_URL}${id}`;
+      const url = `${this._videoBaseUrl}${id}`;
 
       return new Video(url, responseJson);
     } catch (err) {
@@ -85,7 +85,7 @@ class Video {
   _url: string;
   _artistName: string;
   _songTitle: string;
-  _duration: SongInfoOnSuccess["duration"];
+  _duration: SongInfo<true>["duration"];
 
   constructor(url: string, videoDataResponse: YoutubeDataApiVideoResponse) {
     const videoData = videoDataResponse.items?.[0];
@@ -117,7 +117,7 @@ class Video {
       .join(" ");
   }
 
-  get duration(): SongInfoOnSuccess["duration"] {
+  get duration(): SongInfo<true>["duration"] {
     return this._duration;
   }
 
@@ -125,16 +125,15 @@ class Video {
     durationString: string;
     durationSeconds: number;
   } {
-    let inputSeconds;
+    const parsedString = secondsAsString.match(/PT(\d+)M(\d+)S/);
 
-    try {
-      inputSeconds = parseInt(secondsAsString);
-    } catch (err) {
-      throw new Error("Invalid duration input");
-    }
+    const inputMinutes = parseInt(parsedString?.[1] || "0");
+    const inputSeconds = parseInt(parsedString?.[2] || "0");
 
-    const minutes = Math.floor(inputSeconds / 60);
-    const seconds = inputSeconds % 60;
+    const totalInputSeconds = inputMinutes * 60 + inputSeconds;
+
+    const minutes = Math.floor(totalInputSeconds / 60);
+    const seconds = totalInputSeconds % 60;
 
     return {
       durationString: `${minutes}min ${seconds}s`,

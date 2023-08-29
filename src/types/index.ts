@@ -2,22 +2,20 @@ import {
   User as DiscordUser,
   Client as DiscordClient,
   Collection as DiscordCollection,
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
+  ChatInputCommandInteraction as DiscordChatInputCommandInteraction,
+  SlashCommandBuilder as DiscordSlashCommandBuilder,
 } from "discord.js";
 import { Player } from "../player";
-import { SpotifyApi } from "../spotify-api";
+import { SpotifyApi } from "../api/spotify-api";
 import { Store } from "../store";
-import { YoutubeDataApi } from "youtube-data-api";
+import { YoutubeDataApi } from "../api/youtube-data-api";
 
-export type User = DiscordUser;
-
-export interface SongInfoOnFailure {
+interface SongInfoOnFailure {
   success: false;
   reason?: string;
 }
 
-export interface SongInfoOnSuccess {
+interface SongInfoOnSuccess {
   success: true;
   url: string;
   qualifiedTitle: string;
@@ -26,6 +24,8 @@ export interface SongInfoOnSuccess {
     durationSeconds: number;
   };
 }
+
+export type User = DiscordUser;
 
 export type SongInfo<TSuccess extends boolean | "either" = "either"> =
   TSuccess extends "either"
@@ -52,7 +52,7 @@ export interface CommandParams {
 }
 
 export interface Command {
-  data: Partial<SlashCommandBuilder>;
+  data: Partial<DiscordSlashCommandBuilder>;
   execute: (interaction: Interaction, params: CommandParams) => Promise<void>;
 }
 
@@ -63,6 +63,6 @@ export type Client = DiscordClient & {
 };
 
 export interface Interaction
-  extends Omit<ChatInputCommandInteraction<any>, "client"> {
+  extends Omit<DiscordChatInputCommandInteraction<any>, "client"> {
   client: Client;
 }

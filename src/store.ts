@@ -1,17 +1,17 @@
-import { PrivateValues, SongInfo, SongInfoOnSuccess } from "./types/index";
+import { SongInfo } from "./types/index";
 import { getSong } from "./utils/index";
-import { SpotifyApi } from "./spotify-api";
-import { YoutubeDataApi } from "./youtube-data-api";
+import { SpotifyApi } from "./api/spotify-api";
+import { YoutubeDataApi } from "./api/youtube-data-api";
 
 export class Store {
-  _queue: SongInfoOnSuccess[];
+  _queue: SongInfo<true>[];
 
   constructor() {
     this._queue = [];
   }
 
   async add(
-    url: string,
+    query: string,
     youtubeDataApi: YoutubeDataApi,
     spotifyApi: SpotifyApi
   ): Promise<SongInfo> {
@@ -20,12 +20,13 @@ export class Store {
     };
 
     try {
-      result = await getSong(url, youtubeDataApi, spotifyApi);
+      result = await getSong(query, youtubeDataApi, spotifyApi);
 
       if (result.success) {
         this._queue.push(result);
       }
     } catch (err) {
+      (result as SongInfo<false>).reason = (err as Error).message;
       console.error(err);
     } finally {
       return result;
@@ -43,7 +44,7 @@ export class Store {
     }
   }
 
-  async play(): Promise<undefined | SongInfoOnSuccess> {
+  async play(): Promise<undefined | SongInfo<true>> {
     let nextSong = this._queue.shift();
     return nextSong;
   }

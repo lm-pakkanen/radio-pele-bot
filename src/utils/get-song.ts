@@ -1,27 +1,42 @@
 import ytdl from "ytdl-core";
 import { getStreamSource } from "./index";
 import { SongInfo } from "../types/index";
-import { SpotifyApi } from "../spotify-api";
-import { YoutubeDataApi } from "../youtube-data-api";
+import { SpotifyApi } from "../api/spotify-api";
+import { YoutubeDataApi } from "../api/youtube-data-api";
+import { StreamSource } from "./get-stream-source";
 
 export const getSong = async (
-  url: string,
+  query: string,
   youtubeDataApi: YoutubeDataApi,
   spotifyApi: SpotifyApi
 ): Promise<SongInfo> => {
   try {
-    const source = getStreamSource(url);
+    const source = getStreamSource(query);
 
-    if (!source) {
-      throw new Error("Unknown source");
-    }
+    let url;
 
-    if (source === "spotify") {
-      url = await spotifyApi.getYoutubeUrlFromSpotifyLink(url);
-    }
+    if (source === StreamSource.NONE) {
+      const matchingVideos = await youtubeDataApi.getVideosBySearch(query, {
+        maxResults: 1,
+      });
 
-    if (!ytdl.validateURL(url)) {
-      throw new SyntaxError("Not found");
+      const matchingVideo = matchingVideos[0];
+
+      if (!matchingVideo) {
+        throw new Error("No results");
+      }
+
+      url = matchingVideo.url;
+    } else if (source === StreamSource.SPOTIFY) {
+      url = await spotifyApi.getYoutubeUrlFromSpotifyLink(query);
+    } else if (source === StreamSource.YOUTUBE) {
+      if (!ytdl.validateURL(query)) {
+        throw new SyntaxError("Not found");
+      }
+
+      url = query;
+    } else {
+      throw new Error("Unknown stream source");
     }
 
     const songInfo = await youtubeDataApi.getVideoByUrl(url);
