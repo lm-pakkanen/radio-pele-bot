@@ -4,6 +4,7 @@ import {
   Client as DiscordClient,
   GatewayIntentBits,
 } from "discord.js";
+
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,7 +18,7 @@ import { YoutubeDataApi } from "./youtube-data-api";
 const UPDATE_GLOBAL_COMMANDS = false;
 const DELETE_GUILD_COMMANDS = false;
 
-//const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const createCommands = async (client: Client, privateValues: PrivateValues) => {
   client.commands = new Collection();

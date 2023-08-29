@@ -1,9 +1,11 @@
 {
   "name": "src",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "start:dev": "npx tsm ./src/index.ts",
-    "start:prod": "pm2 start node ./build/index.js --watch",
+    "start:prod-dev": "node --experimental-specifier-resolution=node build/index.js --experimental-modules",
+    "start:prod": "pm2 start ./build/index.js --watch --node-args=\"--experimental-specifier-resolution=node\"",
     "build": "npx tsc"
   },
   "dependencies": {
