@@ -1,10 +1,9 @@
 {
   "name": "src",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "start:dev": "npx tsm ./src/index.ts",
-    "start:prod": "pm2 start ./build/index.js --watch",
+    "start:prod": "pm2 start node ./build/index.js --watch",
     "build": "npx tsc"
   },
   "dependencies": {

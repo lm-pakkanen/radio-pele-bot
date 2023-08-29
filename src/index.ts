@@ -17,7 +17,7 @@ import { YoutubeDataApi } from "./youtube-data-api";
 const UPDATE_GLOBAL_COMMANDS = false;
 const DELETE_GUILD_COMMANDS = false;
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+//const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const createCommands = async (client: Client, privateValues: PrivateValues) => {
   client.commands = new Collection();
@@ -27,7 +27,7 @@ const createCommands = async (client: Client, privateValues: PrivateValues) => {
 
     const supportedFileTypes = [".js", ".ts"];
 
-    const commandsFolderPath = path.join(__dirname, "commands");
+    const commandsFolderPath = path.join("", "commands");
     const commandFilePaths = fs.readdirSync(commandsFolderPath);
 
     for (const commandFile of commandFilePaths) {
