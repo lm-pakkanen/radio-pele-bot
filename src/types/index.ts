@@ -5,10 +5,10 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import { Player } from "../player.ts";
-import { SpotifyApi } from "../spotify-api.ts";
-import { Store } from "../store.ts";
-import { YoutubeDataApi } from "youtube-data-api.ts";
+import { Player } from "../player";
+import { SpotifyApi } from "../spotify-api";
+import { Store } from "../store";
+import { YoutubeDataApi } from "youtube-data-api";
 
 export type User = DiscordUser;
 

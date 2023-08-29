@@ -1,4 +1,4 @@
-import { PrivateValues } from "../types/index.ts";
+import { PrivateValues } from "../types/index";
 
 export const getPrivateValues = (): PrivateValues => {
   const privateValues: Record<keyof PrivateValues, any> = {

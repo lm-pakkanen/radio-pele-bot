@@ -1,5 +1,5 @@
 import { ApplicationCommandDataResolvable, REST, Routes } from "discord.js";
-import { PrivateValues } from "../types/index.ts";
+import { PrivateValues } from "../types/index";
 
 export const updateGlobalCommands = async (
   privateValues: PrivateValues,

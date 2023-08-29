@@ -1,1 +1,1 @@
-export { YoutubeStream } from "./youtube-stream.ts";
+export { YoutubeStream } from "./youtube-stream";

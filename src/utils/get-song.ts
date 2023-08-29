@@ -1,8 +1,8 @@
 import ytdl from "ytdl-core";
-import { getStreamSource } from "./index.ts";
-import { SongInfo } from "../types/index.ts";
-import { SpotifyApi } from "../spotify-api.ts";
-import { YoutubeDataApi } from "../youtube-data-api.ts";
+import { getStreamSource } from "./index";
+import { SongInfo } from "../types/index";
+import { SpotifyApi } from "../spotify-api";
+import { YoutubeDataApi } from "../youtube-data-api";
 
 export const getSong = async (
   url: string,

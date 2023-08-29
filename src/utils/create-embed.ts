@@ -1,5 +1,5 @@
 import { EmbedBuilder, EmbedField } from "discord.js";
-import { User } from "../types/index.ts";
+import { User } from "../types/index";
 
 interface CreateEmbedParams {
   botUser: User;

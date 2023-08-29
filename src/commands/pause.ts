@@ -1,6 +1,6 @@
 import { EmbedField, SlashCommandBuilder } from "discord.js";
-import { createEmbed } from "../utils/create-embed.ts";
-import { Command } from "../types/index.ts";
+import { createEmbed } from "../utils/create-embed";
+import { Command } from "../types/index";
 
 const data: Command["data"] = new SlashCommandBuilder()
   .setName("pause")

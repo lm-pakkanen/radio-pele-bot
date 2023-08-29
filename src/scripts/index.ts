@@ -1,2 +1,2 @@
-export { updateGlobalCommands } from "./update-global-commands.ts";
-export { updateGuildCommands } from "./update-guild-commands.ts";
+export { updateGlobalCommands } from "./update-global-commands";
+export { updateGuildCommands } from "./update-guild-commands";

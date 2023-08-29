@@ -6,10 +6,10 @@ import {
   AudioPlayer,
 } from "@discordjs/voice";
 import { TextChannel } from "discord.js";
-import { YoutubeStream } from "./streams/index.ts";
-import { delay, createEmbed, embedLayoutField } from "./utils/index.ts";
-import { SongInfoOnSuccess, User } from "./types/index.ts";
-import { Store } from "./store.ts";
+import { YoutubeStream } from "./streams/index";
+import { delay, createEmbed, embedLayoutField } from "./utils/index";
+import { SongInfoOnSuccess, User } from "./types/index";
+import { Store } from "./store";
 
 export class Player {
   _botUser: User;

@@ -1,6 +1,6 @@
 import Spotify from "spotify-web-api-node";
-import { PrivateValues } from "./types/index.ts";
-import { YoutubeDataApi } from "./youtube-data-api.ts";
+import { PrivateValues } from "./types/index";
+import { YoutubeDataApi } from "./youtube-data-api";
 
 const getTrackIdFromUrl = (url: string): string => {
   return url.split("spotify.com/track/")[1];

@@ -7,12 +7,12 @@ import {
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Store } from "./store.ts";
-import { Player } from "./player.ts";
-import { SpotifyApi } from "./spotify-api.ts";
-import { Client, Interaction, PrivateValues } from "./types/index.ts";
-import { getPrivateValues } from "./utils/index.ts";
-import { YoutubeDataApi } from "./youtube-data-api.ts";
+import { Store } from "./store";
+import { Player } from "./player";
+import { SpotifyApi } from "./spotify-api";
+import { Client, Interaction, PrivateValues } from "./types/index";
+import { getPrivateValues } from "./utils/index";
+import { YoutubeDataApi } from "./youtube-data-api";
 
 const UPDATE_GLOBAL_COMMANDS = false;
 const DELETE_GUILD_COMMANDS = false;
@@ -53,7 +53,7 @@ const createCommands = async (client: Client, privateValues: PrivateValues) => {
       console.log("Updating global commands...");
 
       const { updateGlobalCommands } = await import(
-        "./scripts/update-global-commands.ts"
+        "./scripts/update-global-commands"
       );
 
       await updateGlobalCommands(privateValues, commandsAsJson);
@@ -65,7 +65,7 @@ const createCommands = async (client: Client, privateValues: PrivateValues) => {
       console.log("Deleting guild commands...");
 
       const { updateGuildCommands } = await import(
-        "./scripts/update-guild-commands.ts"
+        "./scripts/update-guild-commands"
       );
 
       await updateGuildCommands(privateValues, []);

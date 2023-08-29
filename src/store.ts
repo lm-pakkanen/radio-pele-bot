@@ -1,7 +1,7 @@
-import { PrivateValues, SongInfo, SongInfoOnSuccess } from "./types/index.ts";
-import { getSong } from "./utils/index.ts";
-import { SpotifyApi } from "./spotify-api.ts";
-import { YoutubeDataApi } from "./youtube-data-api.ts";
+import { PrivateValues, SongInfo, SongInfoOnSuccess } from "./types/index";
+import { getSong } from "./utils/index";
+import { SpotifyApi } from "./spotify-api";
+import { YoutubeDataApi } from "./youtube-data-api";
 
 export class Store {
   _queue: SongInfoOnSuccess[];

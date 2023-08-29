@@ -1,6 +1,6 @@
 import nodeUrl from "node:url";
-import { PrivateValues, SongInfoOnSuccess } from "./types/index.ts";
-import { YoutubeDataApiVideoResponse } from "./types/youtube-data-api.ts";
+import { PrivateValues, SongInfoOnSuccess } from "./types/index";
+import { YoutubeDataApiVideoResponse } from "./types/youtube-data-api";
 
 const VIDEO_BASE_URL = "https://www.youtube.com/watch?v=";
 
