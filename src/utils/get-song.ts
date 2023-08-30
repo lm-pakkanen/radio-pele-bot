@@ -48,6 +48,7 @@ export const getSong = async (
       duration: songInfo.duration,
     };
   } catch (err) {
+    console.error(`Query: ${query}`, err);
     return {
       success: false,
       reason: "Invalid URL",
