@@ -19,14 +19,11 @@ export class SpotifyApi {
       clientSecret: SPOTIFY_CLIENT_SECRET,
     });
 
-    this._spotifyClient.clientCredentialsGrant().then(
-      (data) => {
-        this._spotifyClient.setAccessToken(data.body["access_token"]);
-      },
-      (err) => {
-        throw new Error(err);
-      }
-    );
+    this._refreshAccessToken();
+
+    setInterval(() => {
+      this._refreshAccessToken();
+    }, 60 * 60 * 1000);
   }
 
   async getYoutubeUrlFromSpotifyLink(url: string): Promise<string> {
@@ -61,5 +58,21 @@ export class SpotifyApi {
 
     const youtubeUrl = matchingVideo.url;
     return youtubeUrl;
+  }
+
+  async _refreshAccessToken() {
+    console.log("Refreshing spotify access token");
+
+    this._spotifyClient.clientCredentialsGrant().then(
+      (data) => {
+        const nextToken = data.body["access_token"];
+        this._spotifyClient.setAccessToken(nextToken);
+        console.log("Spotify access token refreshed");
+      },
+      (err) => {
+        console.error(err);
+        console.log("Could not refresh spotify access token");
+      }
+    );
   }
 }
