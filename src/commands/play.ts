@@ -76,7 +76,7 @@ const execute: Command["execute"] = async (
     },
     {
       name: "Queue",
-      value: `${store._queue.length || 1} song(s) in Q`,
+      value: `${store.qLength || 1} song(s) in Q`,
       inline: false,
     },
   ];

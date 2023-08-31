@@ -3,9 +3,9 @@ import { PrivateValues, SongInfo } from "../types/index";
 import { YoutubeDataApiVideoResponse } from "../types/youtube-data-api";
 
 export class YoutubeDataApi {
-  _apiKey: string;
-  _baseUrl: string;
-  _videoBaseUrl: string;
+  private _apiKey: string;
+  private _baseUrl: string;
+  private _videoBaseUrl: string;
 
   constructor(privateValues: PrivateValues) {
     this._apiKey = privateValues.YOUTUBE_API_KEY;
@@ -13,7 +13,7 @@ export class YoutubeDataApi {
     this._videoBaseUrl = "https://www.youtube.com/watch?v=";
   }
 
-  async getVideoById(id: undefined | string | string[]): Promise<Video> {
+  public async getVideoById(id: undefined | string | string[]): Promise<Video> {
     const part = "contentDetails,snippet";
 
     if (!this._isValidId(id)) {
@@ -35,7 +35,7 @@ export class YoutubeDataApi {
     }
   }
 
-  async getVideoByUrl(url: string): Promise<Video> {
+  public async getVideoByUrl(url: string): Promise<Video> {
     const transformedUrl = this._transformUrl(url);
 
     const parsedUrl = nodeUrl.parse(transformedUrl, true);
@@ -44,7 +44,7 @@ export class YoutubeDataApi {
     return await this.getVideoById(videoId);
   }
 
-  async getVideosBySearch(
+  public async getVideosBySearch(
     searchValue: string,
     { maxResults }: { maxResults?: number }
   ): Promise<Video[]> {
@@ -75,7 +75,7 @@ export class YoutubeDataApi {
     }
   }
 
-  _transformUrl(url: string) {
+  private _transformUrl(url: string) {
     if (url.includes("youtu.be")) {
       let id: string;
 
@@ -97,7 +97,7 @@ export class YoutubeDataApi {
     return url;
   }
 
-  _isValidId(id: undefined | string | string[]): id is string {
+  private _isValidId(id: undefined | string | string[]): id is string {
     if (typeof id !== "string") {
       return false;
     }
@@ -107,10 +107,10 @@ export class YoutubeDataApi {
 }
 
 class Video {
-  _url: string;
-  _artistName: string;
-  _songTitle: string;
-  _duration: SongInfo<true>["duration"];
+  private _url: string;
+  private _artistName: string;
+  private _songTitle: string;
+  private _duration: SongInfo<true>["duration"];
 
   constructor(url: string, videoDataResponse: YoutubeDataApiVideoResponse) {
     const videoData = videoDataResponse.items?.[0];
@@ -126,11 +126,11 @@ class Video {
     this._duration = this._getDurationInfo(videoData.contentDetails.duration);
   }
 
-  get url(): string {
+  public get url(): string {
     return this._url;
   }
 
-  get qualifiedName(): string {
+  public get qualifiedName(): string {
     return [
       this._songTitle,
       this._artistName && !this._songTitle.includes(this._artistName)
@@ -142,11 +142,11 @@ class Video {
       .join(" ");
   }
 
-  get duration(): SongInfo<true>["duration"] {
+  public get duration(): SongInfo<true>["duration"] {
     return this._duration;
   }
 
-  _getDurationInfo(secondsAsString: string): {
+  private _getDurationInfo(secondsAsString: string): {
     durationString: string;
     durationSeconds: number;
   } {

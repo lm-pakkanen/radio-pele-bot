@@ -12,12 +12,12 @@ const execute: Command["execute"] = async (
 ) => {
   await player.skip();
 
-  const qLength = store._queue.length;
-
   const fields: EmbedField[] = [
     {
       name: "Queue",
-      value: `${qLength > 0 ? "Q empty." : `${qLength} song(s) in Q`}`,
+      value: `${
+        store.qLength > 0 ? "Q empty." : `${store.qLength} song(s) in Q`
+      }`,
       inline: false,
     },
   ];

@@ -7,8 +7,8 @@ const getTrackIdFromUrl = (url: string): string => {
 };
 
 export class SpotifyApi {
-  _spotifyClient: Spotify;
-  _youtubeDataApi: YoutubeDataApi;
+  private _spotifyClient: Spotify;
+  private _youtubeDataApi: YoutubeDataApi;
   private _accessTokenRefreshTimerSeconds: number = 3600;
 
   constructor(privateValues: PrivateValues, youtubeDataApi: YoutubeDataApi) {
@@ -27,7 +27,7 @@ export class SpotifyApi {
     }, (3 / 4) * this._accessTokenRefreshTimerSeconds * 1000);
   }
 
-  async getYoutubeUrlFromSpotifyLink(url: string): Promise<string> {
+  public async getYoutubeUrlFromSpotifyLink(url: string): Promise<string> {
     const trackId = getTrackIdFromUrl(url);
 
     if (!trackId) {
@@ -61,7 +61,7 @@ export class SpotifyApi {
     return youtubeUrl;
   }
 
-  async _refreshAccessToken() {
+  private async _refreshAccessToken() {
     console.log("Refreshing spotify access token");
 
     this._spotifyClient.clientCredentialsGrant().then(

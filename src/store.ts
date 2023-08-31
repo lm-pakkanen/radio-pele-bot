@@ -4,13 +4,13 @@ import { SpotifyApi } from "./api/spotify-api";
 import { YoutubeDataApi } from "./api/youtube-data-api";
 
 export class Store {
-  _queue: SongInfo<true>[];
+  private _queue: SongInfo<true>[];
 
   constructor() {
     this._queue = [];
   }
 
-  async add(
+  public async add(
     query: string,
     youtubeDataApi: YoutubeDataApi,
     spotifyApi: SpotifyApi
@@ -33,19 +33,23 @@ export class Store {
     }
   }
 
-  async clear() {
+  public async clear() {
     this._queue = [];
   }
 
-  async shuffle() {
+  public async shuffle() {
     for (let i = this._queue.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this._queue[i], this._queue[j]] = [this._queue[j], this._queue[i]];
     }
   }
 
-  async play(): Promise<undefined | SongInfo<true>> {
+  public async play(): Promise<undefined | SongInfo<true>> {
     let nextSong = this._queue.shift();
     return nextSong;
+  }
+
+  public get qLength() {
+    return this._queue.length;
   }
 }

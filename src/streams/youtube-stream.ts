@@ -37,7 +37,7 @@ const YTDL_EVENTS = [
 ];
 
 export class YoutubeStream {
-  _audioResource: undefined | Promise<AudioResource>;
+  private _audioResource: undefined | Promise<AudioResource>;
 
   constructor(url: string, { isOpus }: YoutubeStreamOptions) {
     if (!url) {
@@ -57,7 +57,7 @@ export class YoutubeStream {
     this._audioResource = generateEncodedAudioResource(url, { isOpus });
   }
 
-  async getAudioResource(): Promise<AudioResource> {
+  public async getAudioResource(): Promise<AudioResource> {
     if (!this._audioResource) {
       throw new Error("Audio resource not available");
     }

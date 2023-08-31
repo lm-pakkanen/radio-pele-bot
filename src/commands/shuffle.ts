@@ -12,7 +12,7 @@ const execute: Command["execute"] = async (interaction, { botUser, store }) => {
   const fields: EmbedField[] = [
     {
       name: "Queue",
-      value: `${store._queue.length} song(s) in Q`,
+      value: `${store.qLength} song(s) in Q`,
       inline: false,
     },
   ];

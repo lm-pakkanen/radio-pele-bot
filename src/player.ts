@@ -12,15 +12,12 @@ import { SongInfo, User } from "./types/index";
 import { Store } from "./store";
 
 export class Player {
-  _botUser: User;
-  _textChannel: undefined | TextChannel;
-  _connection: undefined | VoiceConnection;
+  private _botUser: User;
+  private _textChannel: undefined | TextChannel;
+  private _connection: undefined | VoiceConnection;
 
-  _player: AudioPlayer;
-  _store;
-
-  _currentSong: undefined | SongInfo<true>;
-  _isFirstPlay: boolean;
+  private _player: AudioPlayer;
+  private _store;
 
   constructor({ store, botUser }: { store: Store; botUser: User }) {
     this._store = store;
@@ -33,14 +30,11 @@ export class Player {
     });
 
     this._player.on(AudioPlayerStatus.Idle, async () => {
-      this._currentSong = undefined;
       await this.play({ sendUpdateMessage: true });
     });
-
-    this._isFirstPlay = true;
   }
 
-  async play({
+  public async play({
     textChannel,
     connection,
     sendUpdateMessage,
@@ -78,7 +72,7 @@ export class Player {
             },
             {
               name: "Queue",
-              value: `${this._store._queue.length} song(s) in Q`,
+              value: `${this._store.qLength} song(s) in Q`,
               inline: false,
             },
           ];
@@ -116,7 +110,7 @@ export class Player {
     return hasNext;
   }
 
-  async pause(): Promise<boolean> {
+  public async pause(): Promise<boolean> {
     if (this._player.state.status === AudioPlayerStatus.Playing) {
       this._player.pause();
       return true;
@@ -125,7 +119,7 @@ export class Player {
     return false;
   }
 
-  async stop() {
+  public async stop() {
     await this._store.clear();
 
     if (this._isPlaying) {
@@ -137,7 +131,7 @@ export class Player {
     }
   }
 
-  async skip(): Promise<boolean> {
+  public async skip(): Promise<boolean> {
     if (this._isPlaying) {
       this._player.stop();
       const hasNext = await this.play({});
@@ -148,19 +142,19 @@ export class Player {
     return false;
   }
 
-  get _isPlaying(): boolean {
+  public get _isPlaying(): boolean {
     return [AudioPlayerStatus.Playing, AudioPlayerStatus.Buffering].includes(
       this._player.state.status
     );
   }
 
-  get _isPaused(): boolean {
+  public get _isPaused(): boolean {
     return [AudioPlayerStatus.Paused, AudioPlayerStatus.AutoPaused].includes(
       this._player.state.status
     );
   }
 
-  async _startNextSong(): Promise<false | SongInfo<true>> {
+  private async _startNextSong(): Promise<false | SongInfo<true>> {
     const nextSong = await this._store.play();
 
     if (nextSong?.url) {
@@ -171,12 +165,6 @@ export class Player {
       const stream = new YoutubeStream(nextSong.url, { isOpus: true });
       const audioResource = await stream.getAudioResource();
 
-      if (this._isFirstPlay) {
-        this._isFirstPlay = false;
-        await delay(1000);
-      }
-
-      this._currentSong = nextSong;
       this._player.play(audioResource);
 
       return nextSong;
