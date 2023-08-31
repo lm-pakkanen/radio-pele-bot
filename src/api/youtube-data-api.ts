@@ -36,8 +36,11 @@ export class YoutubeDataApi {
   }
 
   async getVideoByUrl(url: string): Promise<Video> {
-    const parsedUrl = nodeUrl.parse(url, true);
+    const transformedUrl = this._transformUrl(url);
+
+    const parsedUrl = nodeUrl.parse(transformedUrl, true);
     const videoId = parsedUrl.query.v;
+
     return await this.getVideoById(videoId);
   }
 
@@ -70,6 +73,28 @@ export class YoutubeDataApi {
       console.error(err);
       throw new Error("Could not search videos");
     }
+  }
+
+  _transformUrl(url: string) {
+    if (url.includes("youtu.be")) {
+      let id: string;
+
+      const idMatch = /youtu\.be\/(.[^\?]+)\??/.exec(url);
+
+      if (idMatch) {
+        id = idMatch[1];
+      } else {
+        id = url.split("youtu.be/")[1];
+      }
+
+      if (!id) {
+        return url;
+      }
+
+      return `${this._videoBaseUrl}${id}`;
+    }
+
+    return url;
   }
 
   _isValidId(id: undefined | string | string[]): id is string {
