@@ -2,7 +2,6 @@ import { EmbedBuilder, EmbedField } from "discord.js";
 import { User } from "../types/index";
 
 interface CreateEmbedParams {
-  botUser: User;
   title: string;
   fields: EmbedField[];
 }
@@ -13,14 +12,10 @@ export const embedLayoutField: EmbedField = {
   inline: false,
 };
 
-export const createEmbed = ({ botUser, title, fields }: CreateEmbedParams) => {
+export const createEmbed = ({ title, fields }: CreateEmbedParams) => {
   const embed = new EmbedBuilder()
     .setColor("#e32012")
     .setTitle(title)
-    .setAuthor({
-      name: botUser.username,
-      iconURL: botUser.displayAvatarURL(),
-    })
     .addFields(fields);
 
   return embed;

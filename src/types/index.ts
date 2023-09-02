@@ -18,6 +18,7 @@ interface SongInfoOnFailure {
 interface SongInfoOnSuccess {
   success: true;
   url: string;
+  requestedByUserName: string;
   qualifiedTitle: string;
   duration: {
     durationString: string;
@@ -43,7 +44,6 @@ export interface PrivateValues {
 }
 
 export interface CommandParams {
-  botUser: User;
   player: Player;
   store: Store;
   spotifyApi: SpotifyApi;

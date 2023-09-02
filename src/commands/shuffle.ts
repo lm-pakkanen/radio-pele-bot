@@ -6,20 +6,19 @@ const data: Command["data"] = new SlashCommandBuilder()
   .setName("shuffle")
   .setDescription("Shuffle Q");
 
-const execute: Command["execute"] = async (interaction, { botUser, store }) => {
+const execute: Command["execute"] = async (interaction, { store }) => {
   await store.shuffle();
 
   const fields: EmbedField[] = [
     {
-      name: "Queue",
-      value: `${store.qLength} song(s) in Q`,
+      name: "Q",
+      value: `${store.qLength} song(s) in Q after current song`,
       inline: false,
     },
   ];
 
   const embed = createEmbed({
-    botUser,
-    title: "Q shuffled",
+    title: "Q SHUFFLED",
     fields,
   });
 

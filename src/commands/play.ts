@@ -22,11 +22,11 @@ const data: Command["data"] = new SlashCommandBuilder()
 
 const execute: Command["execute"] = async (
   interaction,
-  { botUser, store, player, spotifyApi, youtubeDataApi }
+  { store, player, spotifyApi, youtubeDataApi }
 ) => {
   const query = interaction.options.getString("query");
 
-  if (!query && !player._isPaused) {
+  if (!query && !player.isPaused) {
     throw new Error("URL missing (required when player is not paused)");
   }
 
@@ -44,8 +44,7 @@ const execute: Command["execute"] = async (
     const fields: EmbedField[] = [];
 
     const embed = createEmbed({
-      botUser,
-      title: "Re-starting song",
+      title: "RE-STARTING SONG",
       fields,
     });
 
@@ -54,7 +53,14 @@ const execute: Command["execute"] = async (
     return;
   }
 
-  const songAddResponse = await store.add(query, youtubeDataApi, spotifyApi);
+  const requestedByUserName = interaction.member.user.displayName;
+
+  const songAddResponse = await store.add(
+    query,
+    requestedByUserName,
+    youtubeDataApi,
+    spotifyApi
+  );
 
   if (!songAddResponse.success) {
     throw new Error(
@@ -70,20 +76,19 @@ const execute: Command["execute"] = async (
 
   const fields: EmbedField[] = [
     {
-      name: "Song",
+      name: "SONG",
       value: songAddResponse.qualifiedTitle,
       inline: false,
     },
     {
-      name: "Queue",
-      value: `${store.qLength || 1} song(s) in Q`,
+      name: "Q",
+      value: `${store.qLength} song(s) in Q after current song`,
       inline: false,
     },
   ];
 
   const embed = createEmbed({
-    botUser,
-    title: "Song added",
+    title: "SONG ADDED",
     fields,
   });
 

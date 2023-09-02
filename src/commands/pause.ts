@@ -6,16 +6,12 @@ const data: Command["data"] = new SlashCommandBuilder()
   .setName("pause")
   .setDescription("Pause current song (restart with /play)");
 
-const execute: Command["execute"] = async (
-  interaction,
-  { botUser, player }
-) => {
+const execute: Command["execute"] = async (interaction, { player }) => {
   const paused = await player.pause();
 
   const fields: EmbedField[] = [];
 
   const embed = createEmbed({
-    botUser,
     title: paused ? "Song paused" : "Nothing to pause!",
     fields,
   });

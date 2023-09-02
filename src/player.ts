@@ -7,21 +7,21 @@ import {
 } from "@discordjs/voice";
 import { TextChannel } from "discord.js";
 import { YoutubeStream } from "./streams/index";
-import { delay, createEmbed, embedLayoutField } from "./utils/index";
-import { SongInfo, User } from "./types/index";
+import { createEmbed } from "./utils/index";
+import { SongInfo } from "./types/index";
 import { Store } from "./store";
 
 export class Player {
-  private _botUser: User;
   private _textChannel: undefined | TextChannel;
   private _connection: undefined | VoiceConnection;
 
   private _player: AudioPlayer;
-  private _store;
+  private _store: Store;
 
-  constructor({ store, botUser }: { store: Store; botUser: User }) {
+  private _currentSong: undefined | SongInfo<true>;
+
+  constructor({ store }: { store: Store }) {
     this._store = store;
-    this._botUser = botUser;
 
     this._player = createAudioPlayer({
       behaviors: {
@@ -29,7 +29,11 @@ export class Player {
       },
     });
 
+    this._player.on(AudioPlayerStatus.AutoPaused, this._onPauseOrStop);
+    this._player.on(AudioPlayerStatus.Paused, this._onPauseOrStop);
+
     this._player.on(AudioPlayerStatus.Idle, async () => {
+      this._onPauseOrStop();
       await this.play({ sendUpdateMessage: true });
     });
   }
@@ -64,22 +68,20 @@ export class Player {
           sendUpdateMessage === true
         ) {
           const fields = [
-            embedLayoutField,
             {
-              name: "Song",
+              name: "SONG",
               value: nextSong.qualifiedTitle,
               inline: false,
             },
             {
-              name: "Queue",
-              value: `${this._store.qLength} song(s) in Q`,
+              name: "Q",
+              value: `${this._store.qLength} song(s) in Q after current song`,
               inline: false,
             },
           ];
 
           const embed = createEmbed({
-            botUser: this._botUser,
-            title: "🎼 Now playing 🎼",
+            title: "NOW PLAYING",
             fields,
           });
 
@@ -122,7 +124,7 @@ export class Player {
   public async stop() {
     await this._store.clear();
 
-    if (this._isPlaying) {
+    if (this.isPlaying) {
       this._player.stop();
     }
 
@@ -132,7 +134,7 @@ export class Player {
   }
 
   public async skip(): Promise<boolean> {
-    if (this._isPlaying) {
+    if (this.isPlaying) {
       this._player.stop();
       const hasNext = await this.play({});
 
@@ -142,16 +144,24 @@ export class Player {
     return false;
   }
 
-  public get _isPlaying(): boolean {
+  public get isPlaying(): boolean {
     return [AudioPlayerStatus.Playing, AudioPlayerStatus.Buffering].includes(
       this._player.state.status
     );
   }
 
-  public get _isPaused(): boolean {
+  public get currentSong(): undefined | SongInfo<true> {
+    return this._currentSong;
+  }
+
+  public get isPaused(): boolean {
     return [AudioPlayerStatus.Paused, AudioPlayerStatus.AutoPaused].includes(
       this._player.state.status
     );
+  }
+
+  public get voiceConnection(): undefined | VoiceConnection {
+    return this._connection;
   }
 
   private async _startNextSong(): Promise<false | SongInfo<true>> {
@@ -166,10 +176,15 @@ export class Player {
       const audioResource = await stream.getAudioResource();
 
       this._player.play(audioResource);
+      this._currentSong = nextSong;
 
       return nextSong;
     } else {
       return false;
     }
+  }
+
+  private _onPauseOrStop() {
+    this._currentSong = undefined;
   }
 }

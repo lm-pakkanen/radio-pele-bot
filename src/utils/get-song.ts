@@ -7,6 +7,7 @@ import { StreamSource } from "./get-stream-source";
 
 export const getSong = async (
   query: string,
+  requestedByUserName: string,
   youtubeDataApi: YoutubeDataApi,
   spotifyApi: SpotifyApi
 ): Promise<SongInfo> => {
@@ -44,6 +45,7 @@ export const getSong = async (
     return {
       success: true,
       url: songInfo.url,
+      requestedByUserName,
       qualifiedTitle: songInfo.qualifiedName,
       duration: songInfo.duration,
     };

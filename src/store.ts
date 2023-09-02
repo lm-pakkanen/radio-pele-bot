@@ -12,6 +12,7 @@ export class Store {
 
   public async add(
     query: string,
+    requestedByUserName: string,
     youtubeDataApi: YoutubeDataApi,
     spotifyApi: SpotifyApi
   ): Promise<SongInfo> {
@@ -20,7 +21,12 @@ export class Store {
     };
 
     try {
-      result = await getSong(query, youtubeDataApi, spotifyApi);
+      result = await getSong(
+        query,
+        requestedByUserName,
+        youtubeDataApi,
+        spotifyApi
+      );
 
       if (result.success) {
         this._queue.push(result);

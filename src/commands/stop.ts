@@ -6,17 +6,13 @@ const data: Command["data"] = new SlashCommandBuilder()
   .setName("stop")
   .setDescription("Stop & clear Q");
 
-const execute: Command["execute"] = async (
-  interaction,
-  { botUser, player }
-) => {
+const execute: Command["execute"] = async (interaction, { player }) => {
   await player.stop();
 
   const fields: EmbedField[] = [];
 
   const embed = createEmbed({
-    botUser,
-    title: "Q stopped. Bye!",
+    title: "HASTA LA VISTA!",
     fields,
   });
 

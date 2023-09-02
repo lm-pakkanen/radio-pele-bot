@@ -6,25 +6,23 @@ const data: Command["data"] = new SlashCommandBuilder()
   .setName("skip")
   .setDescription("Skip current song in Q");
 
-const execute: Command["execute"] = async (
-  interaction,
-  { botUser, store, player }
-) => {
+const execute: Command["execute"] = async (interaction, { store, player }) => {
   await player.skip();
 
   const fields: EmbedField[] = [
     {
-      name: "Queue",
+      name: "Q",
       value: `${
-        store.qLength > 0 ? "Q empty." : `${store.qLength} song(s) in Q`
+        store.qLength > 0
+          ? "Q empty."
+          : `${store.qLength} song(s) in Q  after current song`
       }`,
       inline: false,
     },
   ];
 
   const embed = createEmbed({
-    botUser,
-    title: "Song skipped",
+    title: "SONG SKIPPED",
     fields,
   });
 
