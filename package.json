@@ -18,7 +18,7 @@
     "spotify-web-api-node": "^5.0.2",
     "tsm": "^2.3.0",
     "typescript": "^5.2.2",
-    "ytdl-core": "^4.11.5"
+    "ytdl-core": "^4.10.0"
   },
   "devDependencies": {
     "@types/spotify-web-api-node": "^5.0.7"
