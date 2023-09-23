@@ -44,7 +44,11 @@ export const createAutoDisconnectEvent = (
     const botUser = voiceChannelMembers.get(BOT_CLIENT_ID);
     const isBotInChannel = !!botUser && botUser.user.bot;
 
-    if (voiceChannelMembers?.size === 1 && isBotInChannel) {
+    const isOnlyBotsInChannel =
+      voiceChannelMembers?.size === 1 ||
+      voiceChannelMembers.every((n) => n.user.bot);
+
+    if (isBotInChannel && isOnlyBotsInChannel) {
       player.voiceConnection.destroy();
     }
   });
