@@ -1,1 +1,1 @@
-export { YoutubeStream } from "./youtube-stream";
+export { YoutubeStream } from "./youtube-stream.js";

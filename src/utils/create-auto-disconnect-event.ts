@@ -1,5 +1,5 @@
-import type { Player } from "player";
-import type { Client, PrivateValues } from "types";
+import type { Player } from "player.js";
+import type { Client, PrivateValues } from "types/index.js";
 import { VoiceConnectionStatus } from "@discordjs/voice";
 
 export const createAutoDisconnectEvent = (

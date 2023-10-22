@@ -5,10 +5,10 @@ import {
   ChatInputCommandInteraction as DiscordChatInputCommandInteraction,
   SlashCommandBuilder as DiscordSlashCommandBuilder,
 } from "discord.js";
-import { Player } from "../player";
-import { SpotifyApi } from "../api/spotify-api";
-import { Store } from "../store";
-import { YoutubeDataApi } from "../api/youtube-data-api";
+import { Store } from "store.js";
+import { Player } from "player.js";
+import { SpotifyApi } from "api/spotify-api.js";
+import { YoutubeDataApi } from "api/youtube-data-api.js";
 
 interface SongInfoOnFailure {
   success: false;

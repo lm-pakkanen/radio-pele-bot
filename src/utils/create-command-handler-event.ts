@@ -1,4 +1,4 @@
-import type { Client, CommandParams, Interaction } from "types";
+import type { Client, CommandParams, Interaction } from "types/index.js";
 
 export const createCommandHandlerEvent = (
   client: Client,

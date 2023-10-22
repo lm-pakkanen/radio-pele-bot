@@ -1,5 +1,4 @@
 import { EmbedBuilder, EmbedField } from "discord.js";
-import { User } from "../types/index";
 
 interface CreateEmbedParams {
   title: string;

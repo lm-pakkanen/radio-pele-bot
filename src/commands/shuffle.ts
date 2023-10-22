@@ -1,6 +1,6 @@
 import { EmbedField, SlashCommandBuilder } from "discord.js";
-import { createEmbed } from "../utils/index";
-import { Command } from "../types/index";
+import { createEmbed } from "utils/index.js";
+import { Command } from "types/index.js";
 
 const data: Command["data"] = new SlashCommandBuilder()
   .setName("shuffle")

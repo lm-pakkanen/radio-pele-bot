@@ -1,5 +1,5 @@
 import type { ApplicationCommandDataResolvable } from "discord.js";
-import type { Client, PrivateValues } from "types";
+import type { Client, PrivateValues } from "types/index.js";
 import { Collection } from "discord.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -28,6 +28,7 @@ export const createCommands = async (
       const filePath = `file://${path.join(commandsFolderPath, commandFile)}`;
 
       if (!supportedFileTypes.some((n) => filePath.endsWith(n))) {
+        console.log(filePath);
         console.log("Unsupported command filetype");
         continue;
       }
@@ -47,7 +48,7 @@ export const createCommands = async (
       console.log("Updating global commands...");
 
       const { updateGlobalCommands } = await import(
-        "../scripts/update-global-commands"
+        "../scripts/update-global-commands.js"
       );
 
       await updateGlobalCommands(privateValues, commandsAsJson);
@@ -59,7 +60,7 @@ export const createCommands = async (
       console.log("Deleting guild commands...");
 
       const { updateGuildCommands } = await import(
-        "../scripts/update-guild-commands"
+        "../scripts/update-guild-commands.js"
       );
 
       await updateGuildCommands(privateValues, []);

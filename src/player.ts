@@ -6,10 +6,10 @@ import {
   AudioPlayer,
 } from "@discordjs/voice";
 import { TextChannel } from "discord.js";
-import { YoutubeStream } from "./streams/index";
-import { createEmbed } from "./utils/index";
-import { SongInfo } from "./types/index";
-import { Store } from "./store";
+import { YoutubeStream } from "./streams/index.js";
+import { createEmbed } from "./utils/index.js";
+import { SongInfo } from "./types/index.js";
+import { Store } from "./store.js";
 
 export class Player {
   private _textChannel: undefined | TextChannel;

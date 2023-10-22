@@ -3,7 +3,7 @@ import {
   VoiceConnection,
 } from "@discordjs/voice";
 import { GuildMember } from "discord.js";
-import { Interaction } from "../types/index";
+import { Interaction } from "types/index.js";
 
 export const joinVoiceChannel = (interaction: Interaction): VoiceConnection => {
   const member = interaction.member;

@@ -1,4 +1,4 @@
-import { PrivateValues } from "../types/index";
+import { PrivateValues } from "types/index.js";
 
 export const getPrivateValues = (): PrivateValues => {
   const privateValues: Record<keyof PrivateValues, any> = {
@@ -19,6 +19,19 @@ export const getPrivateValues = (): PrivateValues => {
 
 const ensurePrivateValues = (
   privateValues: Record<keyof PrivateValues, any>
-) => {
-  return Object.values(privateValues).every((n) => n !== undefined);
+): boolean => {
+  const requiredValueKeys: (keyof PrivateValues)[] = [
+    "BOT_TOKEN",
+    "BOT_CLIENT_ID",
+    "SPOTIFY_CLIENT_SECRET",
+    "YOUTUBE_API_KEY",
+  ];
+
+  for (const [key, value] of Object.entries(privateValues)) {
+    if (requiredValueKeys.includes(key as keyof PrivateValues) && !value) {
+      return false;
+    }
+  }
+
+  return true;
 };

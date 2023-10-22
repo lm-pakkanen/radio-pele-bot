@@ -1,8 +1,9 @@
 {
-  "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules", ".vscode"],
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "Es6"],
+    "lib": ["ES2022"],
+
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */
@@ -25,13 +26,13 @@
     // "reactNamespace": "",                             /* Specify the object invoked for 'createElement'. This only applies when targeting 'react' JSX emit. */
     // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
     // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
-    "moduleDetection": "auto" /* Control what method is used to detect module-format JS files. */,
+    "moduleDetection": "force" /* Control what method is used to detect module-format JS files. */,
 
     /* Modules */
-    "module": "ES2022" /* Specify what module code is generated. */,
-    // "rootDir": "./",                                  /* Specify the root folder within your source files. */
-    "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-    "baseUrl": "./src" /* Specify the base directory to resolve non-relative module names. */,
+    "module": "NodeNext" /* Specify what module code is generated. */,
+    "moduleResolution": "NodeNext" /* Specify how TypeScript looks up a file from a given module specifier. */,
+    "rootDir": "./" /* Specify the root folder within your source files. */,
+    "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
@@ -51,13 +52,13 @@
     // "maxNodeModuleJsDepth": 1,                        /* Specify the maximum folder depth used for checking JavaScript files from 'node_modules'. Only applicable with 'allowJs'. */
 
     /* Emit */
-    // "declaration": true /* Generate .d.ts files from TypeScript and JavaScript files in your project. */,
-    // "declarationMap": true /* Create sourcemaps for d.ts files. */,
+    "declaration": false /* Generate .d.ts files from TypeScript and JavaScript files in your project. */,
+    "declarationMap": false /* Create sourcemaps for d.ts files. */,
+    "sourceMap": false /* Create source map files for emitted JavaScript files. */,
     // "emitDeclarationOnly": false /* Only output d.ts files and not JavaScript files. */,
-    // "sourceMap": true /* Create source map files for emitted JavaScript files. */,
     // "inlineSourceMap": true,                          /* Include sourcemap files inside the emitted JavaScript. */
     // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
-    "outDir": "./build" /* Specify an output folder for all emitted files. */,
+    "outDir": "../build" /* Specify an output folder for all emitted files. */,
     "removeComments": true /* Disable emitting comments. */,
     "noEmit": false /* Disable emitting files from a compilation. */,
     // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */

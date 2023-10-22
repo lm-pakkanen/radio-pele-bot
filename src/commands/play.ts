@@ -1,6 +1,6 @@
 import { EmbedField, SlashCommandBuilder, TextChannel } from "discord.js";
-import { joinVoiceChannel, createEmbed } from "../utils/index";
-import { Command } from "../types/index";
+import { joinVoiceChannel, createEmbed } from "utils/index.js";
+import { Command } from "types/index.js";
 
 const supportedSources = ["youtube", "spotify"];
 

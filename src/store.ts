@@ -1,7 +1,7 @@
-import { SongInfo } from "./types/index";
-import { getSong } from "./utils/index";
-import { SpotifyApi } from "./api/spotify-api";
-import { YoutubeDataApi } from "./api/youtube-data-api";
+import { SongInfo } from "types/index.js";
+import { getSong } from "utils/index.js";
+import { SpotifyApi } from "api/spotify-api.js";
+import { YoutubeDataApi } from "api/youtube-data-api.js";
 
 export class Store {
   private _queue: SongInfo<true>[];

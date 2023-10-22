@@ -1,6 +1,6 @@
 import nodeUrl from "node:url";
-import { PrivateValues, SongInfo } from "../types/index";
-import { YoutubeDataApiVideoResponse } from "../types/youtube-data-api";
+import { PrivateValues, SongInfo } from "types/index.js";
+import { YoutubeDataApiVideoResponse } from "types/youtube-data-api.js";
 
 export class YoutubeDataApi {
   private _apiKey: string;
