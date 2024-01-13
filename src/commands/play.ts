@@ -36,10 +36,11 @@ const execute: Command["execute"] = async (
     throw new Error("Text channel not found");
   }
 
+  const guildId = textChannel.guild.id;
   joinVoiceChannel(interaction);
 
   if (!query) {
-    await player.play({ textChannel });
+    await player.play({ guildId, textChannel });
 
     const fields: EmbedField[] = [];
 
@@ -49,7 +50,6 @@ const execute: Command["execute"] = async (
     });
 
     await interaction.reply({ embeds: [embed] });
-
     return;
   }
 
@@ -70,7 +70,7 @@ const execute: Command["execute"] = async (
     );
   }
 
-  await player.play({ textChannel });
+  await player.play({ guildId, textChannel });
 
   const fields: EmbedField[] = [
     {

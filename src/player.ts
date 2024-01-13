@@ -11,25 +11,18 @@ import {
 import { TextChannel } from "discord.js";
 import { YoutubeStream } from "./streams/index.js";
 import { createEmbed } from "./utils/index.js";
-import { PrivateValues, SongInfo } from "./types/index.js";
+import { SongInfo } from "./types/index.js";
 import { Store } from "./store.js";
 
 export class Player {
+  private _guildId: undefined | string;
   private _textChannel: undefined | TextChannel;
-  private _privateValues: PrivateValues;
   private _store: Store;
   private _player: AudioPlayer;
 
   private _currentSong: undefined | SongInfo<true>;
 
-  constructor({
-    store,
-    privateValues,
-  }: {
-    store: Store;
-    privateValues: PrivateValues;
-  }) {
-    this._privateValues = privateValues;
+  constructor({ store }: { store: Store }) {
     this._store = store;
 
     this._player = createAudioPlayer({
@@ -46,6 +39,7 @@ export class Player {
     this._player.on(AudioPlayerStatus.Idle, async () => {
       this._onPauseOrStop();
       await this.play({
+        guildId: this._guildId,
         textChannel: this._textChannel,
         sendUpdateMessage: true,
       });
@@ -54,6 +48,7 @@ export class Player {
     this._player.on("error", async () => {
       this._onPauseOrStop();
       await this.play({
+        guildId: this._guildId,
         textChannel: this._textChannel,
         sendUpdateMessage: true,
       });
@@ -84,17 +79,19 @@ export class Player {
   }
 
   public async play({
+    guildId,
     textChannel,
     sendUpdateMessage,
   }: {
+    guildId: undefined | string;
     textChannel: undefined | TextChannel;
-
     sendUpdateMessage?: boolean;
   }): Promise<boolean> {
-    if (!textChannel) {
+    if (!guildId || !textChannel) {
       return false;
     }
 
+    this._guildId = guildId;
     this._textChannel = textChannel;
 
     let hasNext = false;
@@ -174,7 +171,12 @@ export class Player {
   public async skip(): Promise<boolean> {
     if (this.isPlaying) {
       this._player.stop();
-      const hasNext = await this.play({ textChannel: this._textChannel });
+
+      const hasNext = await this.play({
+        guildId: this._guildId,
+        textChannel: this._textChannel,
+      });
+
       return hasNext;
     }
 
@@ -198,7 +200,11 @@ export class Player {
   }
 
   public get voiceConnection(): undefined | VoiceConnection {
-    return getVoiceConnection(this._privateValues.GUILD_ID_DEV);
+    if (!this._guildId) {
+      return undefined;
+    }
+
+    return getVoiceConnection(this._guildId);
   }
 
   private async _startNextSong(): Promise<false | SongInfo<true>> {
