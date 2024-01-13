@@ -206,15 +206,11 @@ export class Player {
   }
 
   private async _startNextSong(): Promise<false | SongInfo<true>> {
-    console.log("Start 1", this._store.qLength);
     if (!this.voiceConnection) {
       return false;
     }
 
     const nextSong = await this._store.play();
-
-    console.log("Start 2", this._store.qLength);
-    console.log("Start 3", { nextSong });
 
     if (nextSong?.url) {
       const stream = new YoutubeStream(nextSong.url, { isOpus: true });

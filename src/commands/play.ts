@@ -55,6 +55,8 @@ const execute: Command["execute"] = async (
 
   const requestedByUserName = interaction.member.user.displayName;
 
+  console.log(Date.now(), query);
+
   const songAddResponse = await store.add(
     query,
     requestedByUserName,
@@ -70,11 +72,7 @@ const execute: Command["execute"] = async (
     );
   }
 
-  console.log("Play 1", store.qLength);
-
   await player.play({ guildId, textChannel });
-
-  console.log("Play 1", store.qLength);
 
   const fields: EmbedField[] = [
     {
