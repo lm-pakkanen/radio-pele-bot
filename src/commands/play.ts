@@ -70,11 +70,11 @@ const execute: Command["execute"] = async (
     );
   }
 
-  console.log(store.qLength);
+  console.log("Play 1", store.qLength);
 
   await player.play({ guildId, textChannel });
 
-  console.log(store.qLength);
+  console.log("Play 1", store.qLength);
 
   const fields: EmbedField[] = [
     {
