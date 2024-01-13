@@ -55,8 +55,6 @@ const execute: Command["execute"] = async (
 
   const requestedByUserName = interaction.member.user.displayName;
 
-  console.log(Date.now(), query);
-
   const songAddResponse = await store.add(
     query,
     requestedByUserName,
