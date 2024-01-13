@@ -4,28 +4,39 @@ import {
   createAudioPlayer,
   VoiceConnection,
   AudioPlayer,
+  getVoiceConnection,
+  VoiceConnectionStatus,
+  entersState,
 } from "@discordjs/voice";
 import { TextChannel } from "discord.js";
 import { YoutubeStream } from "./streams/index.js";
 import { createEmbed } from "./utils/index.js";
-import { SongInfo } from "./types/index.js";
+import { PrivateValues, SongInfo } from "./types/index.js";
 import { Store } from "./store.js";
 
 export class Player {
   private _textChannel: undefined | TextChannel;
-  private _connection: undefined | VoiceConnection;
-
-  private _player: AudioPlayer;
+  private _privateValues: PrivateValues;
   private _store: Store;
+  private _player: AudioPlayer;
 
   private _currentSong: undefined | SongInfo<true>;
 
-  constructor({ store }: { store: Store }) {
+  constructor({
+    store,
+    privateValues,
+  }: {
+    store: Store;
+    privateValues: PrivateValues;
+  }) {
+    this._privateValues = privateValues;
     this._store = store;
 
     this._player = createAudioPlayer({
+      debug: true,
       behaviors: {
         noSubscriber: NoSubscriberBehavior.Stop,
+        maxMissedFrames: Infinity,
       },
     });
 
@@ -34,26 +45,57 @@ export class Player {
 
     this._player.on(AudioPlayerStatus.Idle, async () => {
       this._onPauseOrStop();
-      await this.play({ sendUpdateMessage: true });
+      await this.play({
+        textChannel: this._textChannel,
+        sendUpdateMessage: true,
+      });
     });
+
+    this._player.on("error", async () => {
+      this._onPauseOrStop();
+      await this.play({
+        textChannel: this._textChannel,
+        sendUpdateMessage: true,
+      });
+    });
+
+    const voiceConnection = this.voiceConnection;
+
+    if (voiceConnection) {
+      voiceConnection.on(VoiceConnectionStatus.Disconnected, async () => {
+        try {
+          await Promise.race([
+            entersState(
+              voiceConnection,
+              VoiceConnectionStatus.Signalling,
+              5_000
+            ),
+            entersState(
+              voiceConnection,
+              VoiceConnectionStatus.Connecting,
+              5_000
+            ),
+          ]);
+        } catch (error) {
+          this.voiceConnection?.destroy();
+        }
+      });
+    }
   }
 
   public async play({
     textChannel,
-    connection,
     sendUpdateMessage,
   }: {
-    textChannel?: undefined | TextChannel;
-    connection?: undefined | VoiceConnection;
+    textChannel: undefined | TextChannel;
+
     sendUpdateMessage?: boolean;
   }): Promise<boolean> {
-    if (textChannel) {
-      this._textChannel = textChannel;
+    if (!textChannel) {
+      return false;
     }
 
-    if (connection) {
-      this._connection = connection;
-    }
+    this._textChannel = textChannel;
 
     let hasNext = false;
 
@@ -62,11 +104,7 @@ export class Player {
         const nextSong = await this._startNextSong();
         hasNext = nextSong !== false;
 
-        if (
-          this._textChannel &&
-          nextSong !== false &&
-          sendUpdateMessage === true
-        ) {
+        if (nextSong && sendUpdateMessage === true) {
           const fields = [
             {
               name: "SONG",
@@ -85,7 +123,7 @@ export class Player {
             fields,
           });
 
-          this._textChannel.send({ embeds: [embed] });
+          textChannel.send({ embeds: [embed] });
         }
 
         break;
@@ -128,15 +166,15 @@ export class Player {
       this._player.stop();
     }
 
-    if (this._connection) {
-      this._connection.destroy();
+    if (this.voiceConnection) {
+      this.voiceConnection.destroy();
     }
   }
 
   public async skip(): Promise<boolean> {
     if (this.isPlaying) {
       this._player.stop();
-      const hasNext = await this.play({});
+      const hasNext = await this.play({ textChannel: this._textChannel });
 
       return hasNext;
     }
@@ -161,22 +199,24 @@ export class Player {
   }
 
   public get voiceConnection(): undefined | VoiceConnection {
-    return this._connection;
+    return getVoiceConnection(this._privateValues.GUILD_ID_DEV);
   }
 
   private async _startNextSong(): Promise<false | SongInfo<true>> {
+    if (!this.voiceConnection || this._store.qLength === 0) {
+      return false;
+    }
+
     const nextSong = await this._store.play();
 
     if (nextSong?.url) {
-      if (this._connection) {
-        this._connection.subscribe(this._player);
-      }
-
       const stream = new YoutubeStream(nextSong.url, { isOpus: true });
       const audioResource = await stream.getAudioResource();
 
       this._player.play(audioResource);
       this._currentSong = nextSong;
+
+      this.voiceConnection.subscribe(this._player);
 
       return nextSong;
     } else {

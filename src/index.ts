@@ -30,7 +30,7 @@ const startClient = async (privateValues: PrivateValues) => {
     await createCommands(client, privateValues);
 
     const store = new Store();
-    const player = new Player({ store });
+    const player = new Player({ store, privateValues });
 
     const youtubeDataApi = new YoutubeDataApi(privateValues);
     const spotifyApi = new SpotifyApi(privateValues, youtubeDataApi);

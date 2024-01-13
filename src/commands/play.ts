@@ -36,10 +36,10 @@ const execute: Command["execute"] = async (
     throw new Error("Text channel not found");
   }
 
-  if (!query) {
-    const connection = joinVoiceChannel(interaction);
+  joinVoiceChannel(interaction);
 
-    await player.play({ textChannel, connection });
+  if (!query) {
+    await player.play({ textChannel });
 
     const fields: EmbedField[] = [];
 
@@ -70,9 +70,7 @@ const execute: Command["execute"] = async (
     );
   }
 
-  const connection = joinVoiceChannel(interaction);
-
-  await player.play({ textChannel, connection });
+  await player.play({ textChannel });
 
   const fields: EmbedField[] = [
     {
