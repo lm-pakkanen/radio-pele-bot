@@ -175,7 +175,6 @@ export class Player {
     if (this.isPlaying) {
       this._player.stop();
       const hasNext = await this.play({ textChannel: this._textChannel });
-
       return hasNext;
     }
 
@@ -203,6 +202,7 @@ export class Player {
   }
 
   private async _startNextSong(): Promise<false | SongInfo<true>> {
+    console.log({ v: this.voiceConnection, s: this._store.qLength });
     if (!this.voiceConnection || this._store.qLength === 0) {
       return false;
     }
