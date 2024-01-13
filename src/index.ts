@@ -50,7 +50,7 @@ const startClient = async (privateValues: PrivateValues) => {
         console.log("Re-starting bot");
         process.exit(1);
       }
-    }, 10 * 1000);
+    }, 60 * 60 * 1000);
   });
 
   client.login(BOT_TOKEN);

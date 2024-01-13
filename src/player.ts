@@ -163,9 +163,7 @@ export class Player {
       this._player.stop();
     }
 
-    if (this.voiceConnection) {
-      this.voiceConnection.destroy();
-    }
+    this.voiceConnection?.destroy();
   }
 
   public async skip(): Promise<boolean> {
